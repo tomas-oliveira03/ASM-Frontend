@@ -161,11 +161,6 @@ const CryptoDashboard: React.FC = () => {
           onChange={handleCoinChange}
         />
         
-        <TimeRangeSelector 
-          selectedTimeRange={selectedTimeRange}
-          onChange={handleTimeRangeChange}
-        />
-        
         <FieldSelector 
           selectedFields={selectedFields}
           onChange={handleFieldsChange}
@@ -180,7 +175,16 @@ const CryptoDashboard: React.FC = () => {
       )}
       
       {selectedFields.length > 0 ? (
-        <CryptoChart data={cryptoData} selectedFields={selectedFields} />
+        <div className="chart-with-controls">
+          {/* TimeRangeSelector repositioned here, above the chart like CoinMarketCap */}
+          <div className="chart-time-selector">
+            <TimeRangeSelector 
+              selectedTimeRange={selectedTimeRange}
+              onChange={handleTimeRangeChange}
+            />
+          </div>
+          <CryptoChart data={cryptoData} selectedFields={selectedFields} />
+        </div>
       ) : (
         <div className="no-data-message">
           Please select at least one data field to display
