@@ -87,12 +87,61 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       pointHoverRadius: 5,
       tension: 0.4,
     });
+
+    // Add a reference line at the initial price
+    if (data.historical_price.length > 0) {
+      // Find the earliest date in the sorted dates that has historical price data
+      const initialDateIndex = sortedDates.findIndex(date => 
+        data.historical_price.some(item => item.date === date)
+      );
+      
+      if (initialDateIndex >= 0) {
+        const initialDate = sortedDates[initialDateIndex];
+        const initialPricePoint = data.historical_price.find(item => item.date === initialDate);
+        const initialPrice = initialPricePoint ? initialPricePoint.price : null;
+        
+        if (initialPrice !== null) {
+          datasets.push({
+            label: 'Initial Price',
+            data: sortedDates.map(() => initialPrice),
+            borderColor: 'rgba(255, 215, 0, 0.7)', // Yellow color
+            backgroundColor: 'transparent',
+            borderWidth: 1,
+            borderDash: [3, 3],
+            yAxisID: 'y',
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            tension: 0,
+            fill: false,
+          });
+        }
+      }
+    }
   }
   
   if (selectedFields.includes('predicted_price')) {
+    // Find the last historical price point to ensure connection
+    let lastHistoricalDate = null;
+    let lastHistoricalPrice = null;
+    
+    if (data.historical_price.length > 0) {
+      // Sort historical prices by date to find the last one
+      const sortedHistoricalPrices = [...data.historical_price].sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
+      
+      lastHistoricalDate = sortedHistoricalPrices[0].date;
+      lastHistoricalPrice = sortedHistoricalPrices[0].price;
+    }
+    
     datasets.push({
       label: 'Predicted Price',
       data: sortedDates.map(date => {
+        // If this is the last historical date, use that price for connection
+        if (date === lastHistoricalDate && lastHistoricalPrice !== null) {
+          return lastHistoricalPrice;
+        }
+        
         const point = data.predicted_price.find(item => item.date === date);
         return point ? point.price : null;
       }),
@@ -109,10 +158,17 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
   
   if (selectedFields.includes('positive_sentiment_ratio')) {
     datasets.push({
-      label: 'Positive Sentiment',
+      label: 'Sentiment Ratio',
       data: sortedDates.map(date => {
-        const point = data.positive_sentiment_ratio.find(item => item.date === date);
-        return point && point.sentiment > 0 && point.sentiment < 1 ? point.sentiment * 100 : 50;
+        // Check if this date has historical price data
+        const hasHistoricalData = data.historical_price.some(item => item.date === date);
+        // Only return sentiment for dates with historical data
+        if (hasHistoricalData) {
+          const point = data.positive_sentiment_ratio.find(item => item.date === date);
+          return point && point.sentiment > 0 && point.sentiment < 1 ? point.sentiment * 100 : 50;
+        }
+        // Return null for predicted dates (will not be displayed)
+        return null;
       }),
       borderColor: 'rgba(75, 192, 192, 0.8)',
       backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -122,6 +178,25 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       pointRadius: 0,
       pointHoverRadius: 4,
       tension: 0.4,
+    });
+    
+    // Add a reference line at 50% sentiment (neutral)
+    datasets.push({
+      label: 'Neutral Sentiment',
+      data: sortedDates.map(date => {
+        const hasHistoricalData = data.historical_price.some(item => item.date === date);
+        return hasHistoricalData ? 50 : null;
+      }),
+      borderColor: 'rgba(255, 255, 255, 0.5)',
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderDash: [3, 3],
+      yAxisID: 'y1',
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      tension: 0,
+      fill: false,
+      hidden: false
     });
   }
   
@@ -190,6 +265,12 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         padding: 12,
         borderColor: 'rgba(255, 255, 255, 0.1)',
         borderWidth: 1,
+        // Filter out reference lines from tooltips
+        filter: function(tooltipItem: any) {
+          // Skip showing tooltip for reference lines
+          const label = tooltipItem.dataset.label;
+          return label !== 'Initial Price' && label !== 'Neutral Sentiment';
+        },
         callbacks: {
           label: function(context: any) {
             let label = context.dataset.label || '';
