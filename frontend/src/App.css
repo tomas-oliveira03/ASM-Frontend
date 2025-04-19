@@ -61,6 +61,91 @@
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Enhanced Coin Selector Styles */
+.coin-selector {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05); /* Slightly lighter background */
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15); /* More visible border */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.coin-selector:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+  border-color: rgba(79, 172, 254, 0.3);
+}
+
+.coin-label {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.selected-coin-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.coin-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #fff;
+  padding: 2px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.coin-icon-fallback {
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+}
+
+.selected-coin-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.enhanced-select {
+  padding: 10px 14px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(15, 15, 26, 0.8); /* Darker background for better contrast */
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234facfe' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.enhanced-select:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.enhanced-select option {
+  background-color: #16213e;
+  color: #fff;
+  padding: 10px;
+}
+
 /* Coin selector styles */
 .coin-selector select {
   margin-top: 12px;

@@ -7,16 +7,9 @@ interface CoinSelectorProps {
   onChange: (coin: CoinType) => void;
 }
 
-// Cryptocurrency icons mapping 
-const coinIcons: Record<CoinType, string> = {
-  BTC: "₿",
-  ETH: "Ξ",
-  XRP: "✗",
-  BNB: "🔶",
-  SOL: "◎",
-  DOGE: "Ð",
-  TRX: "♦",
-  ADA: "₳"
+// Get cryptocurrency logo path
+const getCoinLogoPath = (coin: CoinType): string => {
+  return `/crypto-logos/${coin.toLowerCase()}.png`;
 };
 
 const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, availableCoins, onChange }) => {
@@ -29,16 +22,32 @@ const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, availableCoin
     >
       <label htmlFor="coin-select">
         <span style={{ display: 'block', marginBottom: '8px' }}>Select Cryptocurrency</span>
-        <span style={{ fontSize: '24px' }}>{coinIcons[selectedCoin]}</span>
+        <div className="selected-coin-display">
+          <img 
+            src={getCoinLogoPath(selectedCoin)} 
+            alt={`${selectedCoin} logo`} 
+            className="coin-logo"
+            onError={(e) => {
+              // Fallback if image fails to load
+              (e.target as HTMLImageElement).style.display = 'none';
+              (e.target as HTMLImageElement).nextSibling!.style.display = 'inline';
+            }}
+          />
+          <span className="coin-icon-fallback" style={{ display: 'none' }}>
+            {selectedCoin}
+          </span>
+          <span className="selected-coin-text">{selectedCoin}</span>
+        </div>
       </label>
       <select 
         id="coin-select" 
         value={selectedCoin} 
         onChange={(e) => onChange(e.target.value as CoinType)}
+        className="enhanced-select"
       >
         {availableCoins.map((coin) => (
           <option key={coin} value={coin}>
-            {coinIcons[coin]} {coin}
+            {coin}
           </option>
         ))}
       </select>
