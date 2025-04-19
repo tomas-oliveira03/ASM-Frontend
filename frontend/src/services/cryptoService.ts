@@ -11,7 +11,7 @@ export const getCryptoData = async (coin: CoinType): Promise<CryptoData> => {
   try {
     console.log(`Fetching data for ${coin} from ${API_BASE_URL}/${coin}`);
     // Remove the http://localhost:3001 prefix to use the Vite proxy
-    const response = await fetch(`http://localhost:3001/api/crypto/BTC`, {
+    const response = await fetch(`http://localhost:3001/api/crypto/${coin}`, {
       method: "GET",
       headers: {
         'Accept': 'application/json'

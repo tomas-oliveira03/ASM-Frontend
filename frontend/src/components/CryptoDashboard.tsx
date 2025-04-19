@@ -6,7 +6,6 @@ import CryptoChart from './CryptoChart';
 import ModelBenchmarks from './ModelBenchmarks';
 import { CoinType, CryptoData, DataField, TimeRange } from '../types';
 import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../services/cryptoService';
-import '../services/apiTest'; // Import the testing utilities
 
 const CryptoDashboard: React.FC = () => {
   const [selectedCoin, setSelectedCoin] = useState<CoinType>('BTC');
@@ -92,7 +91,7 @@ const CryptoDashboard: React.FC = () => {
     if (!dateString) return '';
     
     const date = new Date(dateString);
-    return date.toLocaleString(undefined, {
+    return date.toLocaleString('en-US', {
       year: 'numeric', 
       month: 'long', 
       day: 'numeric',
@@ -121,7 +120,6 @@ const CryptoDashboard: React.FC = () => {
         <ol>
           <li><strong>Verify the backend API server is running at http://localhost:3001.</strong> (Check its console!)</li>
           <li>Check the backend server's console output for any errors.</li>
-          <li>Ensure the API endpoint structure is `/api/crypto/{COIN}` and returns valid JSON.</li>
           <li>Restart both backend and frontend servers after making changes.</li>
         </ol>
         <div className="error-actions">
@@ -154,12 +152,6 @@ const CryptoDashboard: React.FC = () => {
     <div className="crypto-dashboard">
       <h1>Cryptocurrency Dashboard</h1>
       
-      {cryptoData.date && (
-        <div className="calculation-date">
-          <p>Prediction calculated on: <strong>{formatCalculationDate(cryptoData.date)}</strong></p>
-        </div>
-      )}
-      
       <div className="controls">
         <CoinSelector 
           selectedCoin={selectedCoin}
@@ -177,6 +169,13 @@ const CryptoDashboard: React.FC = () => {
           onChange={handleFieldsChange}
         />
       </div>
+      
+      {/* Moved prediction date display right above the chart */}
+      {cryptoData.date && (
+        <div className="calculation-date">
+          <p>Prediction calculated on: <strong>{formatCalculationDate(cryptoData.date)}</strong></p>
+        </div>
+      )}
       
       {selectedFields.length > 0 ? (
         <CryptoChart data={cryptoData} selectedFields={selectedFields} />
