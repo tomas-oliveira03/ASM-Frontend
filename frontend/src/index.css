@@ -1,25 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', 'Roboto', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.95);
+  background-color: #0f0f1a;
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #4facfe;
   text-decoration: inherit;
+  transition: color 0.3s ease;
 }
+
 a:hover {
-  color: #535bf2;
+  color: #00f2fe;
 }
 
 body {
@@ -27,12 +37,27 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
+  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: radial-gradient(white, rgba(255, 255, 255, 0.2) 2px, transparent 3px);
+  background-size: 100px 100px;
+  animation: move-twinkle 8s infinite;
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 2.2em;
   line-height: 1.1;
   margin-bottom: 1rem;
+  font-weight: 700;
 }
 
 button {
@@ -42,33 +67,34 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s ease;
+  color: #fff;
 }
 
 button:hover {
-  border-color: #646cff;
+  border-color: #4facfe;
+  background-color: rgba(79, 172, 254, 0.1);
 }
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.3);
 }
 
 #root {
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@keyframes move-twinkle {
+  0%, 100% {
+    opacity: 0.2;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+  50% {
+    opacity: 0.7;
   }
 }

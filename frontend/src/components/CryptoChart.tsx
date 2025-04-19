@@ -8,8 +8,10 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from 'chart.js';
 import { CryptoData, DataField } from '../types';
+import { motion } from 'framer-motion';
 
 // Register ChartJS components
 ChartJS.register(
@@ -19,7 +21,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 interface CryptoChartProps {
@@ -66,7 +69,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
     }
   });
   
-  // Prepare datasets
+  // Prepare datasets with enhanced styling
   const datasets = [];
   
   if (selectedFields.includes('historical_price')) {
@@ -78,9 +81,11 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       }),
       borderColor: 'rgb(53, 162, 235)',
       backgroundColor: 'rgba(53, 162, 235, 0.5)',
+      borderWidth: 2,
       yAxisID: 'y',
-      pointRadius: sortedDates.length > 60 ? 1 : 3,
-      pointHoverRadius: sortedDates.length > 60 ? 3 : 5,
+      pointRadius: sortedDates.length > 60 ? 0 : 3,
+      pointHoverRadius: 5,
+      tension: 0.4,
     });
   }
   
@@ -93,10 +98,12 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       }),
       borderColor: 'rgb(255, 99, 132)',
       backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      borderWidth: 2,
       borderDash: [5, 5],
       yAxisID: 'y',
-      pointRadius: sortedDates.length > 60 ? 1 : 3, // Show points similar to historical price
-      pointHoverRadius: sortedDates.length > 60 ? 3 : 5, // Consistent hover behavior
+      pointRadius: sortedDates.length > 60 ? 0 : 3,
+      pointHoverRadius: 5,
+      tension: 0.3,
     });
   }
   
@@ -105,18 +112,16 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       label: 'Positive Sentiment',
       data: sortedDates.map(date => {
         const point = data.positive_sentiment_ratio.find(item => item.date === date);
-        // Transform sentiment value from 0-1 to 0-100 for percentage display
-        // Use 50% (neutral sentiment) when no data is available or sentiment is 0 or 100
         return point && point.sentiment > 0 && point.sentiment < 1 ? point.sentiment * 100 : 50;
       }),
-      borderColor: 'rgba(75, 192, 192, 0.6)', // More transparent line color
-      backgroundColor: 'rgba(75, 192, 192, 0.2)', // Much more transparent fill for subtlety
-      borderWidth: 1, // Thinner line for subtlety
-      fill: 'origin', // Fill down to x-axis
+      borderColor: 'rgba(75, 192, 192, 0.8)',
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderWidth: 2,
+      fill: true,
       yAxisID: 'y1',
-      pointRadius: 0, // Hide points for a cleaner line
-      pointHoverRadius: 4, // Show points on hover
-      tension: 0.2, // Less curve for a more subtle appearance
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      tension: 0.4,
     });
   }
   
@@ -138,10 +143,40 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         display: true,
         text: `${data.coin} - Price and Sentiment Analysis`,
         font: {
-          size: 16
+          size: 18,
+          family: "'Inter', sans-serif",
+          weight: '600'
+        },
+        padding: {
+          bottom: 20
+        },
+        color: '#e0e0e0'
+      },
+      legend: {
+        position: 'top' as const,
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            family: "'Inter', sans-serif",
+            size: 12
+          },
+          color: '#e0e0e0'
         }
       },
       tooltip: {
+        backgroundColor: 'rgba(15, 15, 26, 0.8)',
+        titleFont: {
+          family: "'Inter', sans-serif",
+          size: 14
+        },
+        bodyFont: {
+          family: "'Inter', sans-serif",
+          size: 13
+        },
+        padding: 12,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
         callbacks: {
           label: function(context: any) {
             let label = context.dataset.label || '';
@@ -163,8 +198,16 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
     scales: {
       x: {
         ticks: {
-          // For large datasets, show fewer x-axis labels
           maxTicksLimit: sortedDates.length > 60 ? 10 : 20,
+          font: {
+            family: "'Inter', sans-serif",
+            size: 11
+          },
+          color: '#a0a0a0'
+        },
+        grid: {
+          display: true,
+          color: 'rgba(255, 255, 255, 0.05)'
         }
       },
       y: {
@@ -174,35 +217,63 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         title: {
           display: true,
           text: 'Price (USD)',
+          font: {
+            family: "'Inter', sans-serif",
+            size: 12,
+          },
+          color: '#e0e0e0'
         },
         ticks: {
+          font: {
+            family: "'Inter', sans-serif",
+            size: 11
+          },
+          color: '#a0a0a0',
           callback: (value: number) => '$' + value.toLocaleString()
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.05)'
         }
       },
       y1: {
         type: 'linear' as const,
         display: selectedFields.includes('positive_sentiment_ratio'),
         position: 'right' as const,
-        grid: {
-          drawOnChartArea: false,
-        },
         min: 0,
         max: 100,
         title: {
           display: true,
           text: 'Sentiment Ratio (%)',
+          font: {
+            family: "'Inter', sans-serif",
+            size: 12,
+          },
+          color: '#e0e0e0'
         },
         ticks: {
+          font: {
+            family: "'Inter', sans-serif",
+            size: 11
+          },
+          color: '#a0a0a0',
           callback: (value: number) => value.toFixed(0) + '%'
+        },
+        grid: {
+          display: false
         }
       },
     },
   };
 
   return (
-    <div className="chart-container">
+    <motion.div 
+      className="chart-container"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.3 }}
+    >
       <Line data={chartData} options={options} />
-    </div>
+    </motion.div>
   );
 };
 
