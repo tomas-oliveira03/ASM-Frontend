@@ -91,30 +91,113 @@
 .selected-coin-display {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
-  margin: 10px 0;
-}
-
-.coin-logo {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: #fff;
-  padding: 2px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-.coin-icon-fallback {
-  font-size: 24px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(15, 15, 26, 0.8);
   color: #fff;
-  text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selected-coin-display:hover, 
+.selected-coin-display.active {
+  border-color: #4facfe;
+  box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.3);
 }
 
 .selected-coin-text {
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
+  flex-grow: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  color: #4facfe;
+  transition: transform 0.2s ease;
+}
+
+.selected-coin-display.active .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.coin-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  background-color: rgba(22, 33, 62, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  max-height: 250px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #4facfe rgba(15, 15, 26, 0.8);
+}
+
+.coin-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.coin-dropdown::-webkit-scrollbar-track {
+  background: rgba(15, 15, 26, 0.8);
+  border-radius: 3px;
+}
+
+.coin-dropdown::-webkit-scrollbar-thumb {
+  background-color: #4facfe;
+  border-radius: 3px;
+}
+
+.coin-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.coin-option:last-child {
+  border-bottom: none;
+}
+
+.coin-option:hover {
+  background-color: rgba(79, 172, 254, 0.15);
+}
+
+.coin-option.selected {
+  background-color: rgba(79, 172, 254, 0.25);
+}
+
+.coin-option-text {
+  font-weight: 500;
+}
+
+.hidden-select {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Updated coin logo styles */
+.coin-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #fff;
+  padding: 2px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  object-fit: contain;
 }
 
 .enhanced-select {
@@ -203,7 +286,8 @@
 /* Calculation date */
 .calculation-date {
   width: 100%;
-  margin-bottom: 25px;
+  margin-top: 30px;
+  margin-bottom: 10px;
   padding: 15px;
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(10px);

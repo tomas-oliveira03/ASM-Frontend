@@ -224,12 +224,6 @@ const CryptoDashboard: React.FC = () => {
         />
       </div>
       
-      {cryptoData.date && (
-        <div className="calculation-date">
-          <p>Prediction calculated on: <strong>{formatCalculationDate(cryptoData.date)}</strong></p>
-        </div>
-      )}
-      
       {/* Current Price Card above the chart */}
       <div className="current-price-container">
         <PriceForecastCard
@@ -275,6 +269,13 @@ const CryptoDashboard: React.FC = () => {
       
       {cryptoData.model_benchmarks && (
         <ModelBenchmarks benchmarks={cryptoData.model_benchmarks} />
+      )}
+      
+      {/* Move calculation date to here - below everything else */}
+      {cryptoData.date && (
+        <div className="calculation-date">
+          <p>Prediction calculated on: <strong>{formatCalculationDate(cryptoData.date)}</strong></p>
+        </div>
       )}
     </div>
   );
