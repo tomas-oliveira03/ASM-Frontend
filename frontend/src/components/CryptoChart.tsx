@@ -106,16 +106,17 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       data: sortedDates.map(date => {
         const point = data.positive_sentiment_ratio.find(item => item.date === date);
         // Transform sentiment value from 0-1 to 0-100 for percentage display
-        return point ? point.sentiment * 100 : null;
+        // Use 50% (neutral sentiment) when no data is available or sentiment is 0 or 100
+        return point && point.sentiment > 0 && point.sentiment < 1 ? point.sentiment * 100 : 50;
       }),
-      borderColor: 'rgb(75, 192, 192)',
-      backgroundColor: 'rgba(75, 192, 192, 0.3)', // Semi-transparent fill
-      borderWidth: 2,
-      fill: true, // Enable fill below the line
+      borderColor: 'rgba(75, 192, 192, 0.6)', // More transparent line color
+      backgroundColor: 'rgba(75, 192, 192, 0.2)', // Much more transparent fill for subtlety
+      borderWidth: 1, // Thinner line for subtlety
+      fill: 'origin', // Fill down to x-axis
       yAxisID: 'y1',
       pointRadius: 0, // Hide points for a cleaner line
       pointHoverRadius: 4, // Show points on hover
-      tension: 0.3, // Add slight curve to the line for smoother appearance
+      tension: 0.2, // Less curve for a more subtle appearance
     });
   }
   

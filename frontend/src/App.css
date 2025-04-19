@@ -12,22 +12,29 @@
 
 .crypto-dashboard {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .calculation-date {
+  width: 100%;
   margin-bottom: 20px;
   padding: 10px;
   background-color: #f8f9fa;
   border-radius: 8px;
   font-size: 0.9rem;
   color: #555;
+  text-align: center;
 }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .coin-selector,
@@ -36,7 +43,9 @@
   padding: 15px;
   background-color: #f1f1f1;
   border-radius: 8px;
+  flex: 1;
   min-width: 200px;
+  max-width: 300px;
 }
 
 .coin-selector select {
@@ -86,6 +95,8 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Prevent chart overflow */
+  box-sizing: border-box; /* Include padding in width calculations */
 }
 
 .model-benchmarks {
@@ -94,18 +105,22 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
 }
 
 .model-benchmarks h3 {
   margin-top: 0;
   color: #333;
+  text-align: center;
 }
 
 .benchmarks-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(5, 1fr); /* Force equal width columns */
+  gap: 15px;
   margin-top: 20px;
+  width: 100%;
 }
 
 .benchmark-item {
@@ -113,6 +128,10 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 120px; /* Fixed height for consistency */
 }
 
 .benchmark-label {
@@ -298,6 +317,12 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .benchmarks-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .controls {
     flex-direction: column;
@@ -307,6 +332,12 @@
     width: 100%;
   }
 
+  .benchmarks-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .benchmarks-grid {
     grid-template-columns: 1fr;
   }

@@ -20,6 +20,11 @@ const ModelBenchmarks: React.FC<ModelBenchmarksProps> = ({ benchmarks }) => {
           <div className="benchmark-desc">Mean Absolute Percentage Error</div>
         </div>
         <div className="benchmark-item">
+          <div className="benchmark-label">MSE</div>
+          <div className="benchmark-value">{benchmarks.mse.toFixed(2)}</div>
+          <div className="benchmark-desc">Mean Square Error</div>
+        </div>
+        <div className="benchmark-item">
           <div className="benchmark-label">RMSE</div>
           <div className="benchmark-value">{benchmarks.rmse.toFixed(2)}</div>
           <div className="benchmark-desc">Root Mean Square Error</div>
