@@ -162,6 +162,19 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
             size: 12
           },
           color: '#e0e0e0'
+        },
+        // Enable legend interaction for toggling datasets
+        onClick: function(e: any, legendItem: any, legend: any) {
+          const index = legendItem.datasetIndex;
+          const ci = legend.chart;
+          
+          if (ci.isDatasetVisible(index)) {
+            ci.hide(index);
+            legendItem.hidden = true;
+          } else {
+            ci.show(index);
+            legendItem.hidden = false;
+          }
         }
       },
       tooltip: {

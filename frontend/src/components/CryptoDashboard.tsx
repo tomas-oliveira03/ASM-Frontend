@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import CoinSelector from './CoinSelector';
 import TimeRangeSelector from './TimeRangeSelector';
-import FieldSelector from './FieldSelector';
 import CryptoChart from './CryptoChart';
 import ModelBenchmarks from './ModelBenchmarks';
 import { CoinType, CryptoData, DataField, TimeRange } from '../types';
@@ -10,18 +9,15 @@ import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../serv
 const CryptoDashboard: React.FC = () => {
   const [selectedCoin, setSelectedCoin] = useState<CoinType>('BTC');
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('30days');
-  const [selectedFields, setSelectedFields] = useState<DataField[]>(['historical_price', 'predicted_price']);
+  const [selectedFields, setSelectedFields] = useState<DataField[]>(['historical_price', 'predicted_price', 'positive_sentiment_ratio']);
   const [cryptoData, setCryptoData] = useState<CryptoData | null>(null);
-  const [originalData, setOriginalData] = useState<CryptoData | null>(null); // Store original unfiltered data
+  const [originalData, setOriginalData] = useState<CryptoData | null>(null);
   const [availableCoins, setAvailableCoins] = useState<CoinType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get available coins
     setAvailableCoins(getAvailableCoins());
-    
-    // Load initial data
     fetchCryptoData(selectedCoin);
   }, []);
 
@@ -34,18 +30,17 @@ const CryptoDashboard: React.FC = () => {
     setError(null);
     try {
       const data = await getCryptoData(coin);
-      
+
       if (!data || !data.historical_price || data.historical_price.length === 0) {
         throw new Error(`No data available for ${coin}`);
       }
-      
-      setOriginalData(data); // Store the original, complete dataset
+
+      setOriginalData(data);
       const filteredData = filterDataByTimeRange(data, selectedTimeRange);
       setCryptoData(filteredData);
     } catch (err: any) {
       console.error(`Error loading data:`, err);
-      
-      // Provide more detailed error message based on the error type
+
       if (err.message && err.message.includes('ECONNREFUSED')) {
         setError(
           `Connection Refused: Unable to connect to the backend server at http://localhost:3001. ` +
@@ -57,7 +52,6 @@ const CryptoDashboard: React.FC = () => {
           `Check the backend server logs for details.`
         );
       } else if (err.message && err.message.includes('Failed to fetch')) {
-        // Generic network error message
         setError(
           `Network Error: Failed to fetch data. ` +
           `Verify the backend server at http://localhost:3001 is running and accessible. Use console tests (testProxy) to confirm.`
@@ -65,7 +59,7 @@ const CryptoDashboard: React.FC = () => {
       } else {
         setError(`Failed to load ${coin} data: ${err.message || 'Unknown error'}`);
       }
-      
+
       setCryptoData(null);
     } finally {
       setLoading(false);
@@ -78,24 +72,19 @@ const CryptoDashboard: React.FC = () => {
 
   const handleTimeRangeChange = (timeRange: TimeRange) => {
     setSelectedTimeRange(timeRange);
-    if (originalData) { // Always filter from the original dataset
+    if (originalData) {
       const filteredData = filterDataByTimeRange(originalData, timeRange);
       setCryptoData(filteredData);
     }
   };
 
-  const handleFieldsChange = (fields: DataField[]) => {
-    setSelectedFields(fields);
-  };
-
-  // Format calculation date
   const formatCalculationDate = (dateString?: string) => {
     if (!dateString) return '';
-    
+
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
-      year: 'numeric', 
-      month: 'long', 
+      year: 'numeric',
+      month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -160,23 +149,16 @@ const CryptoDashboard: React.FC = () => {
           availableCoins={availableCoins}
           onChange={handleCoinChange}
         />
-        
-        <FieldSelector 
-          selectedFields={selectedFields}
-          onChange={handleFieldsChange}
-        />
       </div>
       
-      {/* Moved prediction date display right above the chart */}
       {cryptoData.date && (
         <div className="calculation-date">
           <p>Prediction calculated on: <strong>{formatCalculationDate(cryptoData.date)}</strong></p>
         </div>
       )}
       
-      {selectedFields.length > 0 ? (
+      {cryptoData ? (
         <div className="chart-with-controls">
-          {/* TimeRangeSelector repositioned here, above the chart like CoinMarketCap */}
           <div className="chart-time-selector">
             <TimeRangeSelector 
               selectedTimeRange={selectedTimeRange}
@@ -187,7 +169,7 @@ const CryptoDashboard: React.FC = () => {
         </div>
       ) : (
         <div className="no-data-message">
-          Please select at least one data field to display
+          {loading ? "Loading data..." : "No data available"}
         </div>
       )}
       
