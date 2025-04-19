@@ -20,10 +20,13 @@ const CryptoDashboard: React.FC = () => {
     current: number;
     initial: number;
     changePercentage: number;
+    changeAmount: number;
     nextDay: number;
     nextDayChange: number;
+    nextDayChangeAmount: number;
     sevenDay: number;
     sevenDayChange: number;
+    sevenDayChangeAmount: number;
   } | null>(null);
 
   useEffect(() => {
@@ -59,24 +62,30 @@ const CryptoDashboard: React.FC = () => {
     
     // Calculate change since initial price
     const changePercentage = ((currentPrice - initialPrice) / initialPrice) * 100;
+    const changeAmount = currentPrice - initialPrice;
     
     // Next day forecast (first predicted price)
     const nextDayPrice = sortedPredictedPrices[0].price;
     const nextDayChange = ((nextDayPrice - currentPrice) / currentPrice) * 100;
+    const nextDayChangeAmount = nextDayPrice - currentPrice;
     
     // Seven day forecast (if available, otherwise use the last predicted price)
     const sevenDayIndex = Math.min(6, sortedPredictedPrices.length - 1);
     const sevenDayPrice = sortedPredictedPrices[sevenDayIndex].price;
     const sevenDayChange = ((sevenDayPrice - currentPrice) / currentPrice) * 100;
+    const sevenDayChangeAmount = sevenDayPrice - currentPrice;
     
     return {
       current: currentPrice,
       initial: initialPrice,
       changePercentage,
+      changeAmount,
       nextDay: nextDayPrice,
       nextDayChange,
+      nextDayChangeAmount,
       sevenDay: sevenDayPrice,
-      sevenDayChange
+      sevenDayChange,
+      sevenDayChangeAmount
     };
   };
 
@@ -227,6 +236,7 @@ const CryptoDashboard: React.FC = () => {
           title="Current Price"
           price={priceStats.current}
           changePercentage={priceStats.changePercentage}
+          changeAmount={priceStats.changeAmount}
           subtitle="since start"
         />
       </div>
@@ -253,11 +263,13 @@ const CryptoDashboard: React.FC = () => {
           title="Next Day Forecast"
           price={priceStats.nextDay}
           changePercentage={priceStats.nextDayChange}
+          changeAmount={priceStats.nextDayChangeAmount}
         />
         <PriceForecastCard
           title="7-Day Forecast"
           price={priceStats.sevenDay}
           changePercentage={priceStats.sevenDayChange}
+          changeAmount={priceStats.sevenDayChangeAmount}
         />
       </div>
       

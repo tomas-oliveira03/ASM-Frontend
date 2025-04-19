@@ -4,6 +4,7 @@ interface PriceForecastCardProps {
   title: string;
   price: number;
   changePercentage: number;
+  changeAmount?: number; 
   subtitle?: string;
 }
 
@@ -11,6 +12,7 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
   title, 
   price, 
   changePercentage,
+  changeAmount,
   subtitle 
 }) => {
   // Format price to have commas and 2 decimal places
@@ -20,6 +22,16 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(price);
+
+  // Format change amount if provided - no "+" symbol
+  const formattedChangeAmount = changeAmount !== undefined 
+    ? new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(Math.abs(changeAmount))
+    : null;
 
   // Determine if change is positive or negative for styling
   const isPositive = changePercentage >= 0;
@@ -37,6 +49,9 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
       <div className="price-value">{formattedPrice}</div>
       <div className="price-change" style={{ color: changeColor }}>
         {changeSymbol}{changePercentage.toFixed(2)}%
+        {formattedChangeAmount && (
+          <span className="price-change-amount"> ({formattedChangeAmount})</span>
+        )}
       </div>
       {subtitle && <div className="price-subtitle">{subtitle}</div>}
     </motion.div>
