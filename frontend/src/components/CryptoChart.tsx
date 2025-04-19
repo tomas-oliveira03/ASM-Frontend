@@ -95,8 +95,8 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       backgroundColor: 'rgba(255, 99, 132, 0.5)',
       borderDash: [5, 5],
       yAxisID: 'y',
-      pointRadius: 0, // Hide all points for a cleaner look
-      pointHoverRadius: 6, // Still show points on hover for interaction
+      pointRadius: sortedDates.length > 60 ? 1 : 3, // Show points similar to historical price
+      pointHoverRadius: sortedDates.length > 60 ? 3 : 5, // Consistent hover behavior
     });
   }
   

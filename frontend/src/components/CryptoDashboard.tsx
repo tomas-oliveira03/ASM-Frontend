@@ -12,6 +12,7 @@ const CryptoDashboard: React.FC = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('30days');
   const [selectedFields, setSelectedFields] = useState<DataField[]>(['historical_price', 'predicted_price']);
   const [cryptoData, setCryptoData] = useState<CryptoData | null>(null);
+  const [originalData, setOriginalData] = useState<CryptoData | null>(null); // Store original unfiltered data
   const [availableCoins, setAvailableCoins] = useState<CoinType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +39,7 @@ const CryptoDashboard: React.FC = () => {
         throw new Error(`No data available for ${coin}`);
       }
       
+      setOriginalData(data); // Store the original, complete dataset
       const filteredData = filterDataByTimeRange(data, selectedTimeRange);
       setCryptoData(filteredData);
     } catch (err: any) {
@@ -76,8 +78,8 @@ const CryptoDashboard: React.FC = () => {
 
   const handleTimeRangeChange = (timeRange: TimeRange) => {
     setSelectedTimeRange(timeRange);
-    if (cryptoData) {
-      const filteredData = filterDataByTimeRange(cryptoData, timeRange);
+    if (originalData) { // Always filter from the original dataset
+      const filteredData = filterDataByTimeRange(originalData, timeRange);
       setCryptoData(filteredData);
     }
   };
