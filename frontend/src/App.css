@@ -396,6 +396,65 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
+/* Price Forecast Cards */
+.current-price-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.forecast-cards-container {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+  margin-bottom: 30px;
+  margin-top: 20px;
+}
+
+.price-forecast-card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.price-forecast-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-color: rgba(79, 172, 254, 0.2);
+}
+
+.price-forecast-card .card-title {
+  color: #a0a0a0;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.price-forecast-card .price-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #ffffff 30%, #e0e0e0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.price-forecast-card .price-change {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.price-forecast-card .price-subtitle {
+  color: #a0a0a0;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
 @media (max-width: 1024px) {
   .benchmarks-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -428,6 +487,14 @@
   .chart-time-selector button {
     padding: 4px 8px;
     font-size: 0.8rem;
+  }
+
+  .forecast-cards-container {
+    flex-direction: column;
+  }
+  
+  .price-forecast-card {
+    margin-bottom: 15px;
   }
 }
 
