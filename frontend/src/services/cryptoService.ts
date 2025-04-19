@@ -1,166 +1,108 @@
 import { CoinType, CryptoData, TimeRange } from '../types';
-import btcData from '../../../../BTC_data_export.json';
 
-// Use the BTC data export file
-const realBtcData = btcData as CryptoData;
+// Available coins
+const availableCoins: CoinType[] = ['BTC', 'ETH', 'XRP', 'BNB', 'SOL', 'DOGE', 'TRX', 'ADA'];
 
-// Mock data for other coins, but use real BTC data
-const mockData: Record<CoinType, CryptoData> = {
-  'BTC': realBtcData,
-  'ETH': {
-    coin: 'ETH',
-    historical_price: [
-      { date: '2024-05-01', price: 2943.78 },
-      { date: '2024-05-02', price: 2967.45 },
-      { date: '2024-05-03', price: 2989.12 },
-      { date: '2024-05-04', price: 3012.21 },
-      { date: '2024-05-05', price: 3056.78 },
-      { date: '2024-05-06', price: 3089.34 },
-      { date: '2024-05-07', price: 3102.23 },
-      { date: '2024-05-08', price: 3145.81 }
-    ],
-    predicted_price: [
-      { date: '2024-05-09', price: 3200.12 },
-      { date: '2024-05-10', price: 3250.34 },
-      { date: '2024-05-11', price: 3300.56 },
-      { date: '2025-04-19', price: 5342.08 }
-    ],
-    positive_sentiment_ratio: [
-      { date: '2024-05-01', sentiment: 0.4723 },
-      { date: '2024-05-02', sentiment: 0.4812 },
-      { date: '2024-05-03', sentiment: 0.4921 },
-      { date: '2024-05-04', sentiment: 0.4878 },
-      { date: '2024-05-05', sentiment: 0.4967 },
-      { date: '2024-05-06', sentiment: 0.5002 },
-      { date: '2024-05-07', sentiment: 0.5089 },
-      { date: '2024-05-08', sentiment: 0.5135 }
-    ]
-  },
-  'XRP': { 
-    coin: 'XRP',
-    historical_price: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      price: 0.5 + Math.random() * 0.1 
-    })),
-    predicted_price: [
-      { date: '2024-05-09', price: 0.57 },
-      { date: '2025-04-19', price: 0.95 }
-    ],
-    positive_sentiment_ratio: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      sentiment: 0.45 + Math.random() * 0.1 
-    }))
-  },
-  'BNB': { 
-    coin: 'BNB',
-    historical_price: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      price: 400 + Math.random() * 20 
-    })),
-    predicted_price: [
-      { date: '2024-05-09', price: 425 },
-      { date: '2025-04-19', price: 550 }
-    ],
-    positive_sentiment_ratio: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      sentiment: 0.48 + Math.random() * 0.1 
-    }))
-  },
-  'SOL': { 
-    coin: 'SOL',
-    historical_price: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      price: 120 + Math.random() * 10 
-    })),
-    predicted_price: [
-      { date: '2024-05-09', price: 135 },
-      { date: '2025-04-19', price: 210 }
-    ],
-    positive_sentiment_ratio: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      sentiment: 0.51 + Math.random() * 0.1 
-    }))
-  },
-  'DOGE': { 
-    coin: 'DOGE',
-    historical_price: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      price: 0.1 + Math.random() * 0.02 
-    })),
-    predicted_price: [
-      { date: '2024-05-09', price: 0.125 },
-      { date: '2025-04-19', price: 0.25 }
-    ],
-    positive_sentiment_ratio: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      sentiment: 0.55 + Math.random() * 0.1 
-    }))
-  },
-  'TRX': { 
-    coin: 'TRX',
-    historical_price: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      price: 0.08 + Math.random() * 0.01 
-    })),
-    predicted_price: [
-      { date: '2024-05-09', price: 0.09 },
-      { date: '2025-04-19', price: 0.15 }
-    ],
-    positive_sentiment_ratio: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      sentiment: 0.47 + Math.random() * 0.1 
-    }))
-  },
-  'ADA': { 
-    coin: 'ADA',
-    historical_price: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      price: 0.35 + Math.random() * 0.05 
-    })),
-    predicted_price: [
-      { date: '2024-05-09', price: 0.40 },
-      { date: '2025-04-19', price: 0.75 }
-    ],
-    positive_sentiment_ratio: Array(8).fill(null).map((_, i) => ({ 
-      date: `2024-05-0${i+1}`, 
-      sentiment: 0.49 + Math.random() * 0.1 
-    }))
-  },
-};
+// API base URL - Use a relative path instead of absolute URL to work with the proxy
+const API_BASE_URL = '/api/crypto';
 
-export const getCryptoData = (coin: CoinType): CryptoData => {
-  return mockData[coin];
+// Fetch crypto data from the API without fallback
+export const getCryptoData = async (coin: CoinType): Promise<CryptoData> => {
+  try {
+    console.log(`Fetching data for ${coin} from ${API_BASE_URL}/${coin}`);
+    // Remove the http://localhost:3001 prefix to use the Vite proxy
+    const response = await fetch(`http://localhost:3001/api/crypto/BTC`, {
+      method: "GET",
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${coin} data: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(`Successfully fetched ${coin} data from API`);
+    return data;
+  } catch (error) {
+    console.error(`Error fetching ${coin} data:`, error);
+    throw error;
+  }
 };
 
 export const filterDataByTimeRange = (data: CryptoData, timeRange: TimeRange): CryptoData => {
-  // Get the latest date in the dataset to use as reference point
-  const dates = [...data.historical_price.map(item => item.date)];
-  const latestDate = new Date(Math.max(...dates.map(date => new Date(date).getTime())));
+  if (!data.historical_price || data.historical_price.length === 0) {
+    return data; // Return original data if no historical prices
+  }
+  
+  // Parse dates safely
+  const parseDates = (dateStr: string): Date => {
+    try {
+      // Handle various date formats that might come from the API
+      if (dateStr.includes('GMT')) {
+        // Format like "Mon, 29 Apr 2024 00:00:00 GMT"
+        return new Date(dateStr);
+      } else {
+        // ISO format or simple YYYY-MM-DD
+        return new Date(dateStr);
+      }
+    } catch (e) {
+      console.warn("Invalid date format:", dateStr);
+      return new Date(); // Return current date as fallback
+    }
+  };
+
+  // Find latest date in the historical data
+  const dates = data.historical_price.map(item => parseDates(item.date));
+  const latestDate = new Date(Math.max(...dates.map(d => d.getTime())));
   
   let startDate: Date;
-
   switch (timeRange) {
     case '7days':
-      startDate = new Date(latestDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+      startDate = new Date(latestDate);
+      startDate.setDate(latestDate.getDate() - 7);
       break;
     case '30days':
-      startDate = new Date(latestDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+      startDate = new Date(latestDate);
+      startDate.setDate(latestDate.getDate() - 30);
       break;
     case '1year':
-      startDate = new Date(latestDate.getTime() - 365 * 24 * 60 * 60 * 1000);
+      startDate = new Date(latestDate);
+      startDate.setDate(latestDate.getDate() - 365);
       break;
+    default:
+      startDate = new Date(latestDate);
+      startDate.setDate(latestDate.getDate() - 30);
   }
-
-  const startDateString = startDate.toISOString().split('T')[0];
   
+  // Filter data using the startDate
   return {
-    coin: data.coin,
-    historical_price: data.historical_price.filter(item => item.date >= startDateString),
-    predicted_price: data.predicted_price.filter(item => item.date >= startDateString),
-    positive_sentiment_ratio: data.positive_sentiment_ratio.filter(item => item.date >= startDateString),
+    ...data,
+    historical_price: data.historical_price.filter(item => {
+      try {
+        return parseDates(item.date) >= startDate;
+      } catch (e) {
+        return false;
+      }
+    }),
+    predicted_price: data.predicted_price.filter(item => {
+      try {
+        return parseDates(item.date) >= startDate;
+      } catch (e) {
+        return false;
+      }
+    }),
+    positive_sentiment_ratio: data.positive_sentiment_ratio.filter(item => {
+      try {
+        return parseDates(item.date) >= startDate;
+      } catch (e) {
+        return false;
+      }
+    })
   };
 };
 
 export const getAvailableCoins = (): CoinType[] => {
-  return Object.keys(mockData) as CoinType[];
+  return availableCoins;
 };

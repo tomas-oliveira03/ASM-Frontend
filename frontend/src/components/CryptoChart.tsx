@@ -28,6 +28,20 @@ interface CryptoChartProps {
 }
 
 const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
+  // Parse dates safely and format them consistently for display
+  const formatDate = (dateStr: string): string => {
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date');
+      }
+      return date.toLocaleDateString();
+    } catch (e) {
+      console.warn("Invalid date format in chart:", dateStr);
+      return dateStr; // Return the original string if parsing fails
+    }
+  };
+
   // Prepare all dates from all selected datasets
   const allDates = new Set<string>();
   
@@ -43,8 +57,14 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
     data.positive_sentiment_ratio.forEach(item => allDates.add(item.date));
   }
   
-  // Sort dates
-  const sortedDates = Array.from(allDates).sort();
+  // Sort dates chronologically
+  const sortedDates = Array.from(allDates).sort((a, b) => {
+    try {
+      return new Date(a).getTime() - new Date(b).getTime();
+    } catch (e) {
+      return 0;
+    }
+  });
   
   // Prepare datasets
   const datasets = [];
@@ -59,7 +79,6 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       borderColor: 'rgb(53, 162, 235)',
       backgroundColor: 'rgba(53, 162, 235, 0.5)',
       yAxisID: 'y',
-      // For large datasets, reduce point radius and avoid hover highlighting every point
       pointRadius: sortedDates.length > 60 ? 1 : 3,
       pointHoverRadius: sortedDates.length > 60 ? 3 : 5,
     });
@@ -101,7 +120,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
   }
   
   const chartData = {
-    labels: sortedDates,
+    labels: sortedDates.map(formatDate),
     datasets,
   };
   
