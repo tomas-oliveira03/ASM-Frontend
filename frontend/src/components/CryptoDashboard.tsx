@@ -10,7 +10,7 @@ import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../serv
 const CryptoDashboard: React.FC = () => {
   const [selectedCoin, setSelectedCoin] = useState<CoinType>('BTC');
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('30days');
-  const [selectedFields, setSelectedFields] = useState<DataField[]>(['historical_price', 'predicted_price', 'positive_sentiment_ratio']);
+  const [selectedFields] = useState<DataField[]>(['historical_price', 'predicted_price', 'positive_sentiment_ratio']);
   const [cryptoData, setCryptoData] = useState<CryptoData | null>(null);
   const [originalData, setOriginalData] = useState<CryptoData | null>(null);
   const [availableCoins, setAvailableCoins] = useState<CoinType[]>([]);
