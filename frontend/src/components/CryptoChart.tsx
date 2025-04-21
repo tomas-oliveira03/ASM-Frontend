@@ -182,7 +182,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       backgroundColor: 'rgba(179, 136, 255, 0.2)',
       borderWidth: 2,
       fill: true,
-      yAxisID: 'y1',
+      yAxisID: 'y1', 
       pointRadius: 0,
       pointHoverRadius: 4,
       tension: 0.4,
@@ -247,7 +247,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
           color: '#e0e0e0'
         },
         // Enable legend interaction for toggling datasets
-        onClick: function(e: any, legendItem: any, legend: any) {
+        onClick: function(_: any, legendItem: any, legend: any) {
           const index = legendItem.datasetIndex;
           const ci = legend.chart;
           
