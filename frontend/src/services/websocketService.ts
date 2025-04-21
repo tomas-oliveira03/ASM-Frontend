@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 
-type PriceUpdateCallback = (coin: string, price: number) => void;
+type PriceUpdateCallback = (coin: string, price: number, previousPrice: number | null) => void;
 
 class WebSocketService {
   private socket: Socket | null = null;
@@ -29,9 +29,10 @@ class WebSocketService {
     this.socket.on('message', (data: { coin: string; price: number }) => {
       // Only notify callbacks if the price has actually changed
       if (this.lastPrices[data.coin] !== data.price) {
-        console.log(`Received new price update: ${data.coin} - $${data.price}`);
+        const previousPrice = this.lastPrices[data.coin] || null;
+        console.log(`Received new price update: ${data.coin} - $${data.price} (was: ${previousPrice ? '$' + previousPrice : 'unknown'})`);
         this.lastPrices[data.coin] = data.price; // Update stored price
-        this.notifyCallbacks(data.coin, data.price);
+        this.notifyCallbacks(data.coin, data.price, previousPrice);
       } else {
         console.log(`Ignored duplicate price for ${data.coin}: $${data.price}`);
       }
@@ -53,8 +54,8 @@ class WebSocketService {
   }
   
   // Notify all registered callbacks
-  private notifyCallbacks(coin: string, price: number): void {
-    this.callbacks.forEach(callback => callback(coin, price));
+  private notifyCallbacks(coin: string, price: number, previousPrice: number | null): void {
+    this.callbacks.forEach(callback => callback(coin, price, previousPrice));
   }
   
   // Disconnect from server

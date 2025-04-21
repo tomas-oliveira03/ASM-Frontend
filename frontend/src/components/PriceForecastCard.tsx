@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import websocketService from '../services/websocketService';
 
 interface PriceForecastCardProps {
@@ -20,8 +20,15 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
   coin 
 }) => {
   const [currentPrice, setCurrentPrice] = useState<number>(price);
+  const [currentChangePercentage, setCurrentChangePercentage] = useState<number>(changePercentage);
+  const [currentChangeAmount, setCurrentChangeAmount] = useState<number | undefined>(changeAmount);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [lastUpdateTime, setLastUpdateTime] = useState<string>('');
+  
+  // Keep a reference to the baseline price (for calculating changes)
+  const baselinePriceRef = useRef<number>(price);
+  // Store the reference price used to calculate the initial changePercentage
+  const referencePriceRef = useRef<number>(price - (changeAmount || 0));
 
   // Format price to have commas and 2 decimal places
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -32,17 +39,17 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
   }).format(currentPrice);
 
   // Format change amount if provided - no "+" symbol
-  const formattedChangeAmount = changeAmount !== undefined 
+  const formattedChangeAmount = currentChangeAmount !== undefined 
     ? new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-      }).format(Math.abs(changeAmount))
+      }).format(Math.abs(currentChangeAmount))
     : null;
 
   // Determine if change is positive or negative for styling
-  const isPositive = changePercentage >= 0;
+  const isPositive = currentChangePercentage >= 0;
   const changeColor = isPositive ? '#4ade80' : '#f87171';
   const changeSymbol = isPositive ? '+' : '';
 
@@ -53,10 +60,22 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
       websocketService.connect();
       
       // Handler for price updates
-      const handlePriceUpdate = (updatedCoin: string, newPrice: number) => {
+      const handlePriceUpdate = (updatedCoin: string, newPrice: number, previousPrice: number | null) => {
         if (updatedCoin === coin) {
           console.log(`Updating price for ${coin}: $${newPrice}`);
+          
+          // Update the current price
           setCurrentPrice(newPrice);
+          
+          // Calculate changes based on original reference price
+          const newChangeAmount = newPrice - referencePriceRef.current;
+          const newChangePercentage = (newChangeAmount / referencePriceRef.current) * 100;
+          
+          setCurrentChangePercentage(newChangePercentage);
+          setCurrentChangeAmount(newChangeAmount);
+          
+          console.log(`Updated metrics: ${newChangePercentage.toFixed(2)}% ($${newChangeAmount.toFixed(2)})`);
+          
           setIsUpdating(true);
           setLastUpdateTime(new Date().toLocaleTimeString());
           
@@ -74,6 +93,21 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
       };
     }
   }, [coin, title]);
+  
+  // Update reference values when props change
+  useEffect(() => {
+    setCurrentPrice(price);
+    setCurrentChangePercentage(changePercentage);
+    setCurrentChangeAmount(changeAmount);
+    baselinePriceRef.current = price;
+    
+    // Calculate the reference price that would have produced the given change percentage
+    if (changeAmount) {
+      referencePriceRef.current = price - changeAmount;
+    } else {
+      referencePriceRef.current = price / (1 + (changePercentage / 100));
+    }
+  }, [price, changePercentage, changeAmount]);
   
   return (
     <motion.div 
@@ -101,12 +135,22 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
         </motion.div>
       </AnimatePresence>
       
-      <div className="price-change" style={{ color: changeColor }}>
-        {changeSymbol}{changePercentage.toFixed(2)}%
-        {formattedChangeAmount && (
-          <span className="price-change-amount"> ({formattedChangeAmount})</span>
-        )}
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={`${currentChangePercentage}-${currentChangeAmount}`}
+          className="price-change" 
+          style={{ color: changeColor }}
+          initial={{ opacity: 0.7, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {changeSymbol}{currentChangePercentage.toFixed(2)}%
+          {formattedChangeAmount && (
+            <span className="price-change-amount"> ({formattedChangeAmount})</span>
+          )}
+        </motion.div>
+      </AnimatePresence>
       
       {subtitle && <div className="price-subtitle">{subtitle}</div>}
       
@@ -121,6 +165,7 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
             marginTop: '8px'
           }}
         >
+          Last updated: {lastUpdateTime}
         </motion.div>
       )}
     </motion.div>
