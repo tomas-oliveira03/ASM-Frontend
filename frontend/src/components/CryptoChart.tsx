@@ -181,8 +181,6 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       backgroundColor: 'rgba(179, 136, 255, 0.2)',
       pointBackgroundColor: colorPalette.sentiment, // Make sure points use the same color
       pointBorderColor: colorPalette.sentiment,     // Make sure point borders use the same color
-      // For the legend
-      pointStyle: 'rect',                          // Use rectangle style for legend
       fill: true,
       borderWidth: 2,
       yAxisID: 'y1', 
