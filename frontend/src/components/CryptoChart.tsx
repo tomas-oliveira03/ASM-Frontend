@@ -282,18 +282,34 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         callbacks: {
           label: function(context: any) {
             let label = context.dataset.label || '';
+            
+            // Skip showing Predicted Price at the connection point (last historical date)
+            if (label === 'Predicted Price') {
+              // Get the data point's date
+              const pointIndex = context.dataIndex;
+              const date = sortedDates[pointIndex];
+              
+              // Check if this is the last historical date
+              const isLastHistoricalDate = data.historical_price.some(item => 
+                item.date === date && 
+                !data.historical_price.some(h => new Date(h.date) > new Date(date))
+              );
+              
+              if (isLastHistoricalDate) {
+                return null; // Don't show predicted price at the connection point
+              }
+            }
+            
             if (label) {
               label += ': ';
             }
             if (context.parsed.y !== null) {
               if (context.dataset.yAxisID === 'y1') {
-                // Sentiment values - use the sentiment color
-                label += `<span style="color:${colorPalette.sentiment}">${context.parsed.y.toFixed(2)}%</span>`;
+                // Sentiment values - no span
+                label += `${context.parsed.y.toFixed(2)}%`;
               } else {
-                // Price values - use the corresponding dataset color
-                const color = context.dataset.label === 'Predicted Price' ? 
-                  colorPalette.predictedPrice : colorPalette.historicalPrice;
-                label += `<span style="color:${color}">$${context.parsed.y.toLocaleString()}</span>`;
+                // Price values - no span
+                label += `$${context.parsed.y.toLocaleString()}`;
               }
             }
             return label;
