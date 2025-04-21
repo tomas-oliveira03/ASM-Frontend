@@ -72,8 +72,8 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
   // These are the colors we'll use consistently for each data type
   const colorPalette = {
     historicalPrice: 'rgb(53, 162, 235)',
-    predictedPrice: 'rgb(255, 99, 132)',
-    sentiment: 'rgba(179, 136, 255, 0.8)', // Changed to light purple
+    predictedPrice: 'rgb(255, 140, 0)', // Changed from red to orange
+    sentiment: 'rgba(179, 136, 255, 0.8)', // Light purple
     neutral: 'rgba(255, 255, 255, 0.5)'
   };
   
@@ -154,7 +154,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         return point ? point.price : null;
       }),
       borderColor: colorPalette.predictedPrice,
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      backgroundColor: 'rgba(255, 140, 0, 0.5)', // Changed to match the orange color
       borderWidth: 2,
       yAxisID: 'y',
       pointRadius: sortedDates.length > 60 ? 0 : 3,
