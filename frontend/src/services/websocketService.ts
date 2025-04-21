@@ -5,6 +5,7 @@ type PriceUpdateCallback = (coin: string, price: number) => void;
 class WebSocketService {
   private socket: Socket | null = null;
   private callbacks: PriceUpdateCallback[] = [];
+  private lastPrices: Record<string, number> = {}; // Track last price by coin
 
   // Initialize connection to WebSocket server
   connect(): void {
@@ -26,8 +27,14 @@ class WebSocketService {
     });
     
     this.socket.on('message', (data: { coin: string; price: number }) => {
-      console.log(`Received price update: ${data.coin} - $${data.price}`);
-      this.notifyCallbacks(data.coin, data.price);
+      // Only notify callbacks if the price has actually changed
+      if (this.lastPrices[data.coin] !== data.price) {
+        console.log(`Received new price update: ${data.coin} - $${data.price}`);
+        this.lastPrices[data.coin] = data.price; // Update stored price
+        this.notifyCallbacks(data.coin, data.price);
+      } else {
+        console.log(`Ignored duplicate price for ${data.coin}: $${data.price}`);
+      }
     });
     
     this.socket.on('connect_error', (error) => {
@@ -55,6 +62,7 @@ class WebSocketService {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
+      this.lastPrices = {}; // Reset price tracking when disconnecting
     }
   }
 }
