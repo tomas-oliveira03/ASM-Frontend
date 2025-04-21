@@ -69,6 +69,14 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
     }
   });
   
+  // These are the colors we'll use consistently for each data type
+  const colorPalette = {
+    historicalPrice: 'rgb(53, 162, 235)',
+    predictedPrice: 'rgb(255, 99, 132)',
+    sentiment: 'rgba(179, 136, 255, 0.8)', // Changed to light purple
+    neutral: 'rgba(255, 255, 255, 0.5)'
+  };
+  
   // Prepare datasets with enhanced styling
   const datasets = [];
   
@@ -79,7 +87,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         const point = data.historical_price.find(item => item.date === date);
         return point ? point.price : null;
       }),
-      borderColor: 'rgb(53, 162, 235)',
+      borderColor: colorPalette.historicalPrice,
       backgroundColor: 'rgba(53, 162, 235, 0.5)',
       borderWidth: 2,
       yAxisID: 'y',
@@ -145,7 +153,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         const point = data.predicted_price.find(item => item.date === date);
         return point ? point.price : null;
       }),
-      borderColor: 'rgb(255, 99, 132)',
+      borderColor: colorPalette.predictedPrice,
       backgroundColor: 'rgba(255, 99, 132, 0.5)',
       borderWidth: 2,
       borderDash: [5, 5],
@@ -170,8 +178,8 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         // Return null for predicted dates (will not be displayed)
         return null;
       }),
-      borderColor: 'rgba(75, 192, 192, 0.8)',
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: colorPalette.sentiment,
+      backgroundColor: 'rgba(179, 136, 255, 0.2)',
       borderWidth: 2,
       fill: true,
       yAxisID: 'y1',
@@ -187,7 +195,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
         const hasHistoricalData = data.historical_price.some(item => item.date === date);
         return hasHistoricalData ? 50 : null;
       }),
-      borderColor: 'rgba(255, 255, 255, 0.5)',
+      borderColor: colorPalette.neutral,
       backgroundColor: 'transparent',
       borderWidth: 1,
       borderDash: [3, 3],
@@ -279,9 +287,13 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
             }
             if (context.parsed.y !== null) {
               if (context.dataset.yAxisID === 'y1') {
-                label += context.parsed.y.toFixed(2) + '%';
+                // Sentiment values - use the sentiment color
+                label += `<span style="color:${colorPalette.sentiment}">${context.parsed.y.toFixed(2)}%</span>`;
               } else {
-                label += '$' + context.parsed.y.toLocaleString();
+                // Price values - use the corresponding dataset color
+                const color = context.dataset.label === 'Predicted Price' ? 
+                  colorPalette.predictedPrice : colorPalette.historicalPrice;
+                label += `<span style="color:${color}">$${context.parsed.y.toLocaleString()}</span>`;
               }
             }
             return label;
@@ -315,14 +327,14 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
             family: "'Inter', sans-serif",
             size: 12,
           },
-          color: '#e0e0e0'
+          color: colorPalette.historicalPrice
         },
         ticks: {
           font: {
             family: "'Inter', sans-serif",
             size: 11
           },
-          color: '#a0a0a0',
+          color: colorPalette.historicalPrice,
           callback: (value: number) => '$' + value.toLocaleString()
         },
         grid: {
@@ -342,14 +354,14 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
             family: "'Inter', sans-serif",
             size: 12,
           },
-          color: '#e0e0e0'
+          color: colorPalette.sentiment
         },
         ticks: {
           font: {
             family: "'Inter', sans-serif",
             size: 11
           },
-          color: '#a0a0a0',
+          color: colorPalette.sentiment,
           callback: (value: number) => value.toFixed(0) + '%'
         },
         grid: {
