@@ -21,10 +21,15 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ selectedTimeRange
           className={selectedTimeRange === range.value ? 'active' : ''}
           onClick={() => onChange(range.value)}
           whileHover={{ 
-            scale: 1.05,
-            color: selectedTimeRange !== range.value ? '#ffffff' : ''
+            scale: selectedTimeRange === range.value ? 1.02 : 1.05,
+            color: selectedTimeRange === range.value ? '#4facfe' : '#ffffff'
           }}
           whileTap={{ scale: 0.95 }}
+          style={{
+            color: selectedTimeRange === range.value ? '#4facfe' : '#a0a0a0',
+            backgroundColor: selectedTimeRange === range.value ? 'rgba(79, 172, 254, 0.15)' : 'transparent',
+            borderColor: selectedTimeRange === range.value ? 'rgba(79, 172, 254, 0.3)' : 'transparent'
+          }}
         >
           {range.label}
         </motion.button>
