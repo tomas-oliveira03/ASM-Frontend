@@ -180,8 +180,12 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       }),
       borderColor: colorPalette.sentiment,
       backgroundColor: 'rgba(179, 136, 255, 0.2)',
-      borderWidth: 2,
+      pointBackgroundColor: colorPalette.sentiment, // Make sure points use the same color
+      pointBorderColor: colorPalette.sentiment,     // Make sure point borders use the same color
+      // For the legend
+      pointStyle: 'rect',                          // Use rectangle style for legend
       fill: true,
+      borderWidth: 2,
       yAxisID: 'y1', 
       pointRadius: 0,
       pointHoverRadius: 4,
@@ -191,10 +195,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
     // Add a reference line at 50% sentiment (neutral)
     datasets.push({
       label: 'Neutral Sentiment',
-      data: sortedDates.map(date => {
-        const hasHistoricalData = data.historical_price.some(item => item.date === date);
-        return hasHistoricalData ? 50 : null;
-      }),
+      data: sortedDates.map(() => 50), // Show for all dates to make it reach the end
       borderColor: colorPalette.neutral,
       backgroundColor: 'transparent',
       borderWidth: 1,
@@ -238,7 +239,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       legend: {
         position: 'top' as const,
         labels: {
-          usePointStyle: true,
+          usePointStyle: true, // Use the pointStyle from the dataset
           padding: 20,
           font: {
             family: "'Inter', sans-serif",

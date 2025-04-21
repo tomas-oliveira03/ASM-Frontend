@@ -231,7 +231,6 @@ const CryptoDashboard: React.FC = () => {
           price={priceStats.current}
           changePercentage={priceStats.changePercentage}
           changeAmount={priceStats.changeAmount}
-          subtitle="since start"
         />
       </div>
       

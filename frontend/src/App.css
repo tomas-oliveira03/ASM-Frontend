@@ -360,6 +360,22 @@
   transition: transform 0.3s ease;
 }
 
+.chart-container:hover {
+  transform: translateY(-5px);
+}
+
+/* Custom legend styling */
+.chart-container canvas + .chartjs-legend span {
+  box-sizing: border-box !important;
+}
+
+/* Target the sentiment ratio square in the legend */
+.chart-container canvas + .chartjs-legend li:nth-child(3) span,
+.chart-container canvas + .chartjs-legend li[data-dataset-index="2"] span {
+  background-color: rgba(179, 136, 255, 0.8) !important;
+  border-color: rgba(179, 136, 255, 0.8) !important;
+}
+
 /* Interactive legend styles */
 .chart-js-legend {
   cursor: pointer;
@@ -368,10 +384,6 @@
 .chart-js-legend .hidden {
   opacity: 0.5;
   text-decoration: line-through;
-}
-
-.chart-container:hover {
-  transform: translateY(-5px);
 }
 
 /* Model benchmarks */
