@@ -165,7 +165,6 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
             marginTop: '8px'
           }}
         >
-          Last updated: {lastUpdateTime}
         </motion.div>
       )}
     </motion.div>
