@@ -156,7 +156,6 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
       borderColor: colorPalette.predictedPrice,
       backgroundColor: 'rgba(255, 99, 132, 0.5)',
       borderWidth: 2,
-      borderDash: [5, 5],
       yAxisID: 'y',
       pointRadius: sortedDates.length > 60 ? 0 : 3,
       pointHoverRadius: 5,
