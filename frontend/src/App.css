@@ -27,6 +27,7 @@
   font-weight: 700;
   margin-bottom: 1.5rem;
   background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 0.05em;
@@ -393,6 +394,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -438,6 +440,7 @@
   margin: 10px 0;
   font-weight: 700;
   background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   overflow: hidden;
@@ -609,6 +612,7 @@
   font-weight: 700;
   margin-bottom: 8px;
   background: linear-gradient(90deg, #ffffff 30%, #e0e0e0 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
