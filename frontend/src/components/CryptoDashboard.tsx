@@ -231,6 +231,7 @@ const CryptoDashboard: React.FC = () => {
           price={priceStats.current}
           changePercentage={priceStats.changePercentage}
           changeAmount={priceStats.changeAmount}
+          coin={selectedCoin}  // Pass the selected coin to enable WebSocket updates
         />
       </div>
       
