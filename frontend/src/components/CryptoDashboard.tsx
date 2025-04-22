@@ -129,11 +129,23 @@ const CryptoDashboard: React.FC = () => {
         throw new Error(`No data available for ${coin}`);
       }
 
+      console.log(`Received data for ${coin} with current price: ${data.current_price}`);
+      
+      // Set the original data with the current price from API
       setOriginalData(data);
-      const filteredData = filterDataByTimeRange(data, selectedTimeRange);
+      
+      // Create a filtered copy that maintains the current price
+      const filteredData = {
+        ...filterDataByTimeRange(data, selectedTimeRange),
+        current_price: data.current_price
+      };
+      
+      // Set the filtered data with the current price preserved
       setCryptoData(filteredData);
       
+      // Calculate stats with the new price data
       const stats = calculatePriceStats(filteredData);
+      console.log(`Calculated stats for ${coin} - Current price: ${stats?.current}`);
       setPriceStats(stats);
     } catch (err: any) {
       console.error(`Error loading data:`, err);
@@ -165,13 +177,21 @@ const CryptoDashboard: React.FC = () => {
   };
 
   const handleCoinChange = (coin: CoinType) => {
+    console.log(`Changing coin to: ${coin}`);
     setSelectedCoin(coin);
+    // Clear previous data when changing coins to prevent stale data display
+    setCryptoData(null);
+    setPriceStats(null);
   };
 
   const handleTimeRangeChange = (timeRange: TimeRange) => {
     setSelectedTimeRange(timeRange);
     if (originalData) {
-      const filteredData = filterDataByTimeRange(originalData, timeRange);
+      // Ensure current_price is maintained when filtering data for time range changes
+      const filteredData = {
+        ...filterDataByTimeRange(originalData, timeRange),
+        current_price: originalData.current_price // Preserve the current price
+      };
       setCryptoData(filteredData);
       
       const stats = calculatePriceStats(filteredData);
@@ -253,13 +273,16 @@ const CryptoDashboard: React.FC = () => {
       </div>
       
       <div className="current-price-container">
-        <PriceForecastCard
-          title="Current Price"
-          price={priceStats.current}
-          changePercentage={priceStats.changePercentage}
-          changeAmount={priceStats.changeAmount}
-          coin={selectedCoin}
-        />
+        {priceStats && (
+          <PriceForecastCard
+            key={`${selectedCoin}-current-${priceStats.current}`} // Force re-render on coin or price change
+            title="Current Price"
+            price={priceStats.current}
+            changePercentage={priceStats.changePercentage}
+            changeAmount={priceStats.changeAmount}
+            coin={selectedCoin}
+          />
+        )}
       </div>
       
       {cryptoData ? (
@@ -279,20 +302,26 @@ const CryptoDashboard: React.FC = () => {
       )}
       
       <div className="forecast-cards-container">
-        <PriceForecastCard
-          title="Next Day Forecast"
-          price={priceStats.nextDay}
-          changePercentage={priceStats.nextDayChange}
-          changeAmount={priceStats.nextDayChangeAmount}
-          coin={selectedCoin}
-        />
-        <PriceForecastCard
-          title="7-Day Forecast"
-          price={priceStats.sevenDay}
-          changePercentage={priceStats.sevenDayChange}
-          changeAmount={priceStats.sevenDayChangeAmount}
-          coin={selectedCoin}
-        />
+        {priceStats && (
+          <>
+            <PriceForecastCard
+              key={`${selectedCoin}-nextday-${priceStats.nextDay}`}
+              title="Next Day Forecast"
+              price={priceStats.nextDay}
+              changePercentage={priceStats.nextDayChange}
+              changeAmount={priceStats.nextDayChangeAmount}
+              coin={selectedCoin}
+            />
+            <PriceForecastCard
+              key={`${selectedCoin}-sevenday-${priceStats.sevenDay}`}
+              title="7-Day Forecast"
+              price={priceStats.sevenDay}
+              changePercentage={priceStats.sevenDayChange}
+              changeAmount={priceStats.sevenDayChangeAmount}
+              coin={selectedCoin}
+            />
+          </>
+        )}
       </div>
       
       {cryptoData.model_benchmarks && (
