@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import CoinSelector from './CoinSelector';
 import TimeRangeSelector from './TimeRangeSelector';
 import CryptoChart from './CryptoChart';
@@ -30,14 +30,68 @@ const CryptoDashboard: React.FC = () => {
     sevenDayChangeAmount: number;
   } | null>(null);
 
+  const fetchCryptoData = useCallback(async (coin: CoinType) => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log(`Fetching fresh data for ${coin}...`);
+      const data = await getCryptoData(coin);
+
+      if (!data || !data.historical_price || data.historical_price.length === 0) {
+        throw new Error(`No data available for ${coin}`);
+      }
+
+      console.log(`Received data for ${coin} with current price: ${data.current_price}`);
+      
+      // Set the original data with the current price from API
+      setOriginalData(data);
+      
+      // Create a filtered copy that maintains the current price
+      const filteredData = {
+        ...filterDataByTimeRange(data, selectedTimeRange),
+        current_price: data.current_price
+      };
+      
+      // Set the filtered data with the current price preserved
+      setCryptoData(filteredData);
+      
+      // Calculate stats with the new price data
+      const stats = calculatePriceStats(filteredData);
+      console.log(`Calculated stats for ${coin} - Current price: ${stats?.current}`);
+      setPriceStats(stats);
+    } catch (err: any) {
+      console.error(`Error loading data:`, err);
+
+      if (err.message && err.message.includes('ECONNREFUSED')) {
+        setError(
+          `Connection Refused: Unable to connect to the backend server at http://localhost:3001. ` +
+          `Please ensure the backend server is running.`
+        );
+      } else if (err.message && err.message.includes('500')) {
+        setError(
+          `API Server Error (500): The backend server at http://localhost:3001 returned an internal error. ` +
+          `Check the backend server logs for details.`
+        );
+      } else if (err.message && err.message.includes('Failed to fetch')) {
+        setError(
+          `Network Error: Failed to fetch data. ` +
+          `Verify the backend server at http://localhost:3001 is running and accessible. Use console tests (testProxy) to confirm.`
+        );
+      } else {
+        setError(`Failed to load ${coin} data: ${err.message || 'Unknown error'}`);
+      }
+
+      setCryptoData(null);
+      setPriceStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedTimeRange]);
+
   useEffect(() => {
     setAvailableCoins(getAvailableCoins());
     fetchCryptoData(selectedCoin);
-  }, []);
-
-  useEffect(() => {
-    fetchCryptoData(selectedCoin);
-  }, [selectedCoin]);
+  }, [fetchCryptoData, selectedCoin]);
 
   useEffect(() => {
     websocketService.connect();
@@ -119,69 +173,18 @@ const CryptoDashboard: React.FC = () => {
     };
   };
 
-  const fetchCryptoData = async (coin: CoinType) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getCryptoData(coin);
-
-      if (!data || !data.historical_price || data.historical_price.length === 0) {
-        throw new Error(`No data available for ${coin}`);
-      }
-
-      console.log(`Received data for ${coin} with current price: ${data.current_price}`);
-      
-      // Set the original data with the current price from API
-      setOriginalData(data);
-      
-      // Create a filtered copy that maintains the current price
-      const filteredData = {
-        ...filterDataByTimeRange(data, selectedTimeRange),
-        current_price: data.current_price
-      };
-      
-      // Set the filtered data with the current price preserved
-      setCryptoData(filteredData);
-      
-      // Calculate stats with the new price data
-      const stats = calculatePriceStats(filteredData);
-      console.log(`Calculated stats for ${coin} - Current price: ${stats?.current}`);
-      setPriceStats(stats);
-    } catch (err: any) {
-      console.error(`Error loading data:`, err);
-
-      if (err.message && err.message.includes('ECONNREFUSED')) {
-        setError(
-          `Connection Refused: Unable to connect to the backend server at http://localhost:3001. ` +
-          `Please ensure the backend server is running.`
-        );
-      } else if (err.message && err.message.includes('500')) {
-        setError(
-          `API Server Error (500): The backend server at http://localhost:3001 returned an internal error. ` +
-          `Check the backend server logs for details.`
-        );
-      } else if (err.message && err.message.includes('Failed to fetch')) {
-        setError(
-          `Network Error: Failed to fetch data. ` +
-          `Verify the backend server at http://localhost:3001 is running and accessible. Use console tests (testProxy) to confirm.`
-        );
-      } else {
-        setError(`Failed to load ${coin} data: ${err.message || 'Unknown error'}`);
-      }
-
-      setCryptoData(null);
-      setPriceStats(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCoinChange = (coin: CoinType) => {
     console.log(`Changing coin to: ${coin}`);
-    setSelectedCoin(coin);
+    
     // Clear previous data when changing coins to prevent stale data display
     setCryptoData(null);
     setPriceStats(null);
+    
+    // Set the new coin
+    setSelectedCoin(coin);
+    
+    // Always force a fresh data fetch when changing coins
+    fetchCryptoData(coin);
   };
 
   const handleTimeRangeChange = (timeRange: TimeRange) => {
