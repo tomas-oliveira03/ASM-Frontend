@@ -28,14 +28,10 @@ class WebSocketService {
     
     this.socket.on('message', (data: { coin: string; price: number }) => {
       // Only notify callbacks if the price has actually changed
-      if (this.lastPrices[data.coin] !== data.price) {
-        const previousPrice = this.lastPrices[data.coin] || null;
-        console.log(`Received new price update: ${data.coin} - $${data.price} (was: ${previousPrice ? '$' + previousPrice : 'unknown'})`);
-        this.lastPrices[data.coin] = data.price; // Update stored price
-        this.notifyCallbacks(data.coin, data.price, previousPrice);
-      } else {
-        console.log(`Ignored duplicate price for ${data.coin}: $${data.price}`);
-      }
+      const previousPrice = this.lastPrices[data.coin] || null;
+      console.log(`Received new price update: ${data.coin} - $${data.price} (was: ${previousPrice ? '$' + previousPrice : 'unknown'})`);
+      this.lastPrices[data.coin] = data.price; // Update stored price
+      this.notifyCallbacks(data.coin, data.price, previousPrice);
     });
     
     this.socket.on('connect_error', (error) => {
