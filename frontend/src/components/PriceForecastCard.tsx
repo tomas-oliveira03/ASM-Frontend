@@ -6,31 +6,124 @@ interface PriceForecastCardProps {
   title: string;
   price: number;
   changePercentage: number;
-  changeAmount?: number; 
+  changeAmount?: number;
   subtitle?: string;
   coin?: string; // Add coin prop to know which updates to listen for
 }
 
-const PriceForecastCard: React.FC<PriceForecastCardProps> = ({ 
-  title, 
-  price, 
+const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
+  title,
+  price,
   changePercentage,
   changeAmount,
   subtitle,
-  coin 
+  coin
 }) => {
+  // Internal state to hold the displayed values, potentially updated by WebSocket
   const [currentPrice, setCurrentPrice] = useState<number>(price);
   const [currentChangePercentage, setCurrentChangePercentage] = useState<number>(changePercentage);
   const [currentChangeAmount, setCurrentChangeAmount] = useState<number | undefined>(changeAmount);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
-  // Keep a reference to the baseline price (for calculating changes)
-  // For "Current", this is the initial current price. For "Forecast", this is the predicted price.
+  // Ref to store the initial reference price for calculating changes in the "Current" card (used by WS)
+  const referencePriceRef = useRef<number | null>(null);
+  // Ref to store the fixed predicted price for forecast cards
   const baselinePriceRef = useRef<number>(price);
-  // Store the reference price used to calculate the initial changePercentage for the "Current" card
-  const referencePriceRef = useRef<number>(price - (changeAmount || 0));
+  // Ref to track if the component has mounted and initial props are set
+  const isMountedRef = useRef(false);
 
-  // Format price to have commas and 2 decimal places
+  // --- Initialize State and References / Handle Prop Updates ---
+  useEffect(() => {
+    // Logic for Forecast cards OR initial mount of ANY card
+    if (title.includes('Forecast') || !isMountedRef.current) {
+      setCurrentPrice(price);
+      setCurrentChangePercentage(changePercentage);
+      setCurrentChangeAmount(changeAmount);
+      baselinePriceRef.current = price; // Store the initial price (current or predicted)
+
+      // Calculate the reference price for the "Current" card only on first setup
+      if (title.includes('Current') && !isMountedRef.current) {
+        if (changeAmount !== undefined) {
+          referencePriceRef.current = price - changeAmount;
+        } else if (changePercentage !== 0 && price !== 0) { // Avoid division by zero
+          referencePriceRef.current = price / (1 + (changePercentage / 100));
+        } else {
+          referencePriceRef.current = price;
+        }
+        console.log(`Current Price Card Initialized for ${coin}. Initial Price: ${price}, Reference Price: ${referencePriceRef.current}`);
+      }
+
+      if (!isMountedRef.current) {
+        isMountedRef.current = true;
+      }
+      console.log(`State updated from props for ${title} (${coin}) - Initial Mount or Forecast Card.`);
+
+    } else if (title.includes('Current') && isMountedRef.current) {
+      // Logic for "Current" card AFTER initial mount (props changed due to time range)
+      // Keep the WebSocket-driven price (currentPrice state), but update the change % and amount from props
+      // These props reflect the change over the *newly selected time range*.
+      setCurrentChangePercentage(changePercentage);
+      setCurrentChangeAmount(changeAmount);
+      console.log(`Props updated for Current Price Card (${coin}): Change %/Amount updated from props, Price maintained.`);
+    }
+
+    // Dependency array: Rerun if the fundamental identity (coin, title) or the data values change.
+  }, [coin, title, price, changePercentage, changeAmount]);
+
+
+  // --- WebSocket Update Logic ---
+  useEffect(() => {
+    if (coin) {
+      websocketService.connect();
+
+      const handlePriceUpdate = (updatedCoin: string, newPrice: number, _previousPrice: number | null) => {
+        if (updatedCoin === coin) {
+          if (title.includes('Current')) {
+            // --- Update Current Price Card ---
+            if (referencePriceRef.current === null) {
+              console.warn(`Reference price not set for ${coin}, cannot calculate accurate change.`);
+              return; // Don't update if reference isn't ready
+            }
+            console.log(`WS: Updating Current price for ${coin}: $${newPrice}`);
+            setCurrentPrice(newPrice); // Update displayed price
+
+            // Recalculate changes based on the *original reference price*
+            const newChangeAmount = newPrice - referencePriceRef.current;
+            const newChangePercentage = referencePriceRef.current === 0 ? 0 : (newChangeAmount / referencePriceRef.current) * 100;
+
+            setCurrentChangePercentage(newChangePercentage);
+            setCurrentChangeAmount(newChangeAmount);
+            console.log(`WS: Current metrics updated: ${newChangePercentage.toFixed(2)}% ($${newChangeAmount.toFixed(2)})`);
+
+          } else if (title.includes('Forecast')) {
+            // --- Update Forecast Card ---
+            const predictedPrice = baselinePriceRef.current; // Use the fixed predicted price
+            console.log(`WS: Recalculating Forecast for ${coin} based on new current price $${newPrice}. Predicted: $${predictedPrice}`);
+
+            // Recalculate change based on the *new current price* and the *fixed predicted price*
+            const newChangeAmount = predictedPrice - newPrice;
+            const newChangePercentage = newPrice === 0 ? 0 : (newChangeAmount / newPrice) * 100;
+
+            setCurrentChangePercentage(newChangePercentage);
+            setCurrentChangeAmount(newChangeAmount);
+            console.log(`WS: Forecast metrics updated: ${newChangePercentage.toFixed(2)}% ($${newChangeAmount.toFixed(2)})`);
+          }
+
+          // Trigger visual update effect
+          setIsUpdating(true);
+          setTimeout(() => setIsUpdating(false), 1500); // Shorter highlight
+        }
+      };
+
+      websocketService.onPriceUpdate(handlePriceUpdate);
+
+      return () => {
+        websocketService.removeCallback(handlePriceUpdate);
+      };
+    }
+  }, [coin, title]); // Rerun if coin or title changes
+
+  // --- Formatting ---
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -38,8 +131,7 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
     maximumFractionDigits: 2
   }).format(currentPrice);
 
-  // Format change amount if provided - no "+" symbol
-  const formattedChangeAmount = currentChangeAmount !== undefined 
+  const formattedChangeAmount = currentChangeAmount !== undefined
     ? new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -48,135 +140,55 @@ const PriceForecastCard: React.FC<PriceForecastCardProps> = ({
       }).format(Math.abs(currentChangeAmount))
     : null;
 
-  // Determine if change is positive or negative for styling
   const isPositive = currentChangePercentage >= 0;
-  const changeColor = isPositive ? '#4ade80' : '#f87171';
+  const changeColor = isPositive ? '#4ade80' : '#f87171'; // Tailwind green-500 / red-500
   const changeSymbol = isPositive ? '+' : '';
 
-  // Connect to WebSocket and listen for price updates
-  useEffect(() => {
-    // Allow connection if coin is provided, regardless of title
-    if (coin) {
-      // Connect to WebSocket
-      websocketService.connect();
-      
-      // Handler for price updates
-      const handlePriceUpdate = (updatedCoin: string, newPrice: number, previousPrice: number | null) => {
-        if (updatedCoin === coin) {
-          
-          if (title.includes('Current')) {
-            // --- Update Current Price Card ---
-            console.log(`Updating Current price for ${coin}: $${newPrice}`);
-            setCurrentPrice(newPrice); // Update displayed price to the latest
-            
-            // Recalculate changes based on the original reference price
-            const newChangeAmount = newPrice - referencePriceRef.current;
-            const newChangePercentage = referencePriceRef.current === 0 ? 0 : (newChangeAmount / referencePriceRef.current) * 100;
-            
-            setCurrentChangePercentage(newChangePercentage);
-            setCurrentChangeAmount(newChangeAmount);
-            
-            console.log(`Current metrics updated: ${newChangePercentage.toFixed(2)}% ($${newChangeAmount.toFixed(2)})`);
-            
-          } else if (title.includes('Forecast')) {
-            // --- Update Forecast Card ---
-            // Keep the predicted price (currentPrice state) the same
-            const predictedPrice = baselinePriceRef.current; 
-            console.log(`Recalculating Forecast for ${coin} based on new current price $${newPrice}. Predicted: $${predictedPrice}`);
-
-            // Recalculate change based on the *new current price* and the *fixed predicted price*
-            const newChangeAmount = predictedPrice - newPrice;
-            const newChangePercentage = newPrice === 0 ? 0 : (newChangeAmount / newPrice) * 100;
-
-            setCurrentChangePercentage(newChangePercentage);
-            setCurrentChangeAmount(newChangeAmount);
-
-            console.log(`Forecast metrics updated: ${newChangePercentage.toFixed(2)}% ($${newChangeAmount.toFixed(2)})`);
-          }
-
-          // Trigger visual update effect
-          setIsUpdating(true);
-          // Reset the highlight effect after animation
-          setTimeout(() => setIsUpdating(false), 2000); 
-        }
-      };
-      
-      // Register the handler
-      websocketService.onPriceUpdate(handlePriceUpdate);
-      
-      // Cleanup function
-      return () => {
-        websocketService.removeCallback(handlePriceUpdate);
-      };
-    }
-  // Removed title from dependency array as it's only checked inside the handler now
-  }, [coin]); 
-  
-  // Update reference values when props change
-  useEffect(() => {
-    setCurrentPrice(price);
-    setCurrentChangePercentage(changePercentage);
-    setCurrentChangeAmount(changeAmount);
-    baselinePriceRef.current = price; // Store the initial price (current or predicted)
-    
-    // Calculate the reference price for the "Current" card
-    if (title.includes('Current')) {
-      if (changeAmount !== undefined) {
-        referencePriceRef.current = price - changeAmount;
-      } else if (changePercentage !== 0) {
-        referencePriceRef.current = price / (1 + (changePercentage / 100));
-      } else {
-        referencePriceRef.current = price; // Avoid division by zero if percentage is 0
-      }
-    }
-    // No need to calculate referencePriceRef for forecast cards here
-  }, [price, changePercentage, changeAmount, title]);
-  
+  // --- Render ---
   return (
-    <motion.div 
+    <motion.div
       className="price-forecast-card"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
       <div className="card-title">{title}</div>
-      
-      {/* Price Value Animation */}
+
+      {/* Price Value */}
       <AnimatePresence mode="wait">
-        <motion.div 
-          key={currentPrice} // Key remains currentPrice for visual update trigger
+        <motion.div
+          key={`price-${currentPrice}`} // Key ensures animation on price change
           className="price-value"
-          initial={{ opacity: 0.7, scale: 0.95 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1,
-            backgroundColor: isUpdating ? 'rgba(79, 172, 254, 0.15)' : 'transparent',
+          initial={{ opacity: 0.7, y: -5 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            backgroundColor: isUpdating ? 'rgba(79, 172, 254, 0.1)' : 'transparent', // Highlight on update
+            transition: { duration: 0.3 }
           }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          exit={{ opacity: 0, y: 5, transition: { duration: 0.2 } }}
         >
           {formattedPrice}
         </motion.div>
       </AnimatePresence>
-      
-      {/* Price Change Animation */}
+
+      {/* Price Change */}
       <AnimatePresence mode="wait">
-        <motion.div 
-          key={`${currentChangePercentage}-${currentChangeAmount}`} // Key updates when change values update
-          className="price-change" 
+        <motion.div
+          key={`change-${currentChangePercentage.toFixed(2)}-${currentChangeAmount?.toFixed(2)}`} // Key ensures animation on change update
+          className="price-change"
           style={{ color: changeColor }}
-          initial={{ opacity: 0.7, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0.7, y: -5 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.05 } }}
+          exit={{ opacity: 0, y: 5, transition: { duration: 0.2 } }}
         >
           {changeSymbol}{currentChangePercentage.toFixed(2)}%
           {formattedChangeAmount && (
-            <span className="price-change-amount"> ({changeSymbol}{formattedChangeAmount})</span> // Add symbol here too
+            <span className="price-change-amount"> ({changeSymbol}{formattedChangeAmount})</span>
           )}
         </motion.div>
       </AnimatePresence>
-      
+
       {subtitle && <div className="price-subtitle">{subtitle}</div>}
     </motion.div>
   );
