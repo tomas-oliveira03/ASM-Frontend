@@ -258,12 +258,14 @@ const CryptoDashboard: React.FC = () => {
           price={priceStats.nextDay}
           changePercentage={priceStats.nextDayChange}
           changeAmount={priceStats.nextDayChangeAmount}
+          coin={selectedCoin} // Pass coin prop
         />
         <PriceForecastCard
           title="7-Day Forecast"
           price={priceStats.sevenDay}
           changePercentage={priceStats.sevenDayChange}
           changeAmount={priceStats.sevenDayChangeAmount}
+          coin={selectedCoin} // Pass coin prop
         />
       </div>
       
