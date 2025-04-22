@@ -16,6 +16,11 @@ export interface ModelBenchmarks {
   rmse: number;
 }
 
+export interface CoinPriceUpdate {
+  coin: string;
+  price: number;
+}
+
 export interface CryptoData {
   _id?: string;
   coin: string;

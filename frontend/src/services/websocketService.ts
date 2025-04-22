@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import { CoinPriceUpdate } from '../types';
 
 type PriceUpdateCallback = (coin: string, price: number, previousPrice: number | null) => void;
 
@@ -26,12 +27,21 @@ class WebSocketService {
       console.log('Disconnected from WebSocket server');
     });
     
-    this.socket.on('message', (data: { coin: string; price: number }) => {
-      // Only notify callbacks if the price has actually changed
-      const previousPrice = this.lastPrices[data.coin] || null;
-      console.log(`Received new price update: ${data.coin} - $${data.price} (was: ${previousPrice ? '$' + previousPrice : 'unknown'})`);
-      this.lastPrices[data.coin] = data.price; // Update stored price
-      this.notifyCallbacks(data.coin, data.price, previousPrice);
+    this.socket.on('message', (data: CoinPriceUpdate[] | CoinPriceUpdate) => {
+      // Handle both array and single object formats for backward compatibility
+      const updates = Array.isArray(data) ? data : [data];
+      
+      // Process each update in the array
+      updates.forEach(update => {
+        const { coin, price } = update;
+        
+        // Only notify callbacks if the price has actually changed
+        const previousPrice = this.lastPrices[coin] || null;
+        console.log(`Received new price update: ${coin} - $${price} (was: ${previousPrice ? '$' + previousPrice : 'unknown'})`);
+        
+        this.lastPrices[coin] = price; // Update stored price
+        this.notifyCallbacks(coin, price, previousPrice);
+      });
     });
     
     this.socket.on('connect_error', (error) => {
