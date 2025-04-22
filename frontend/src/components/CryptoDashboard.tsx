@@ -6,6 +6,7 @@ import ModelBenchmarks from './ModelBenchmarks';
 import PriceForecastCard from './PriceForecastCard';
 import { CoinType, CryptoData, DataField, TimeRange } from '../types';
 import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../services/cryptoService';
+import { websocketService } from '../services/websocketService';
 
 const CryptoDashboard: React.FC = () => {
   const [selectedCoin, setSelectedCoin] = useState<CoinType>('BTC');
@@ -38,38 +39,67 @@ const CryptoDashboard: React.FC = () => {
     fetchCryptoData(selectedCoin);
   }, [selectedCoin]);
 
+  useEffect(() => {
+    websocketService.connect();
+    
+    const handlePriceUpdate = (coin: string, price: number, previousPrice: number | null) => {
+      if (coin.toUpperCase() === selectedCoin) {
+        console.log(`Received WebSocket update for ${coin}: ${price} (previous: ${previousPrice})`);
+        
+        setOriginalData(prevData => {
+          if (!prevData) return null;
+          
+          const updatedData = {
+            ...prevData,
+            current_price: price
+          };
+          return updatedData;
+        });
+        
+        setCryptoData(prevData => {
+          if (!prevData) return null;
+          
+          const updatedData = {
+            ...prevData,
+            current_price: price
+          };
+          
+          const newStats = calculatePriceStats(updatedData);
+          setPriceStats(newStats);
+          
+          return updatedData;
+        });
+      }
+    };
+    
+    websocketService.onPriceUpdate(handlePriceUpdate);
+    
+    return () => {
+      websocketService.removeCallback(handlePriceUpdate);
+    };
+  }, [selectedCoin]);
+
   const calculatePriceStats = (data: CryptoData) => {
     if (!data.historical_price || !data.predicted_price || 
         data.historical_price.length === 0 || data.predicted_price.length === 0) {
       return null;
     }
 
-    // Sort the historical prices by date
     const sortedHistoricalPrices = [...data.historical_price].sort((a, b) => {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
     
-    // Sort the predicted prices by date
     const sortedPredictedPrices = [...data.predicted_price].sort((a, b) => {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
 
-    // Get initial price from the first point in the selected time range
     const initialPrice = sortedHistoricalPrices[0].price;
-    
-    // Use the current_price directly from the data
     const currentPrice = data.current_price;
-    
-    // Calculate change since initial price
     const changePercentage = ((currentPrice - initialPrice) / initialPrice) * 100;
     const changeAmount = currentPrice - initialPrice;
-    
-    // Next day forecast (first predicted price)
     const nextDayPrice = sortedPredictedPrices[0].price;
     const nextDayChange = ((nextDayPrice - currentPrice) / currentPrice) * 100;
     const nextDayChangeAmount = nextDayPrice - currentPrice;
-    
-    // Seven day forecast (if available, otherwise use the last predicted price)
     const sevenDayIndex = Math.min(6, sortedPredictedPrices.length - 1);
     const sevenDayPrice = sortedPredictedPrices[sevenDayIndex].price;
     const sevenDayChange = ((sevenDayPrice - currentPrice) / currentPrice) * 100;
@@ -103,7 +133,6 @@ const CryptoDashboard: React.FC = () => {
       const filteredData = filterDataByTimeRange(data, selectedTimeRange);
       setCryptoData(filteredData);
       
-      // Calculate price statistics
       const stats = calculatePriceStats(filteredData);
       setPriceStats(stats);
     } catch (err: any) {
@@ -145,7 +174,6 @@ const CryptoDashboard: React.FC = () => {
       const filteredData = filterDataByTimeRange(originalData, timeRange);
       setCryptoData(filteredData);
       
-      // Recalculate price statistics based on the new time range
       const stats = calculatePriceStats(filteredData);
       setPriceStats(stats);
     }
@@ -224,14 +252,13 @@ const CryptoDashboard: React.FC = () => {
         />
       </div>
       
-      {/* Current Price Card above the chart */}
       <div className="current-price-container">
         <PriceForecastCard
           title="Current Price"
           price={priceStats.current}
           changePercentage={priceStats.changePercentage}
           changeAmount={priceStats.changeAmount}
-          coin={selectedCoin}  // Pass the selected coin to enable WebSocket updates
+          coin={selectedCoin}
         />
       </div>
       
@@ -251,21 +278,20 @@ const CryptoDashboard: React.FC = () => {
         </div>
       )}
       
-      {/* Forecast Cards below the chart */}
       <div className="forecast-cards-container">
         <PriceForecastCard
           title="Next Day Forecast"
           price={priceStats.nextDay}
           changePercentage={priceStats.nextDayChange}
           changeAmount={priceStats.nextDayChangeAmount}
-          coin={selectedCoin} // Pass coin prop
+          coin={selectedCoin}
         />
         <PriceForecastCard
           title="7-Day Forecast"
           price={priceStats.sevenDay}
           changePercentage={priceStats.sevenDayChange}
           changeAmount={priceStats.sevenDayChangeAmount}
-          coin={selectedCoin} // Pass coin prop
+          coin={selectedCoin}
         />
       </div>
       
@@ -273,7 +299,6 @@ const CryptoDashboard: React.FC = () => {
         <ModelBenchmarks benchmarks={cryptoData.model_benchmarks} />
       )}
       
-      {/* Move calculation date to here - below everything else */}
       {cryptoData.date && (
         <div className="calculation-date">
           <p>Prediction calculated on: <strong>{formatCalculationDate(cryptoData.date)}</strong></p>
