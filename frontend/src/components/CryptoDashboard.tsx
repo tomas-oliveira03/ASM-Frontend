@@ -57,8 +57,8 @@ const CryptoDashboard: React.FC = () => {
     // Get initial price from the first point in the selected time range
     const initialPrice = sortedHistoricalPrices[0].price;
     
-    // Get current price from the last historical price point
-    const currentPrice = sortedHistoricalPrices[sortedHistoricalPrices.length - 1].price;
+    // Use the current_price directly from the data
+    const currentPrice = data.current_price;
     
     // Calculate change since initial price
     const changePercentage = ((currentPrice - initialPrice) / initialPrice) * 100;

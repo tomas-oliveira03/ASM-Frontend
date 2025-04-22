@@ -20,6 +20,7 @@ export interface CryptoData {
   _id?: string;
   coin: string;
   date?: string; // Date when calculation was made
+  current_price: number; 
   historical_price: PriceDataPoint[];
   predicted_price: PriceDataPoint[];
   positive_sentiment_ratio: SentimentDataPoint[];
