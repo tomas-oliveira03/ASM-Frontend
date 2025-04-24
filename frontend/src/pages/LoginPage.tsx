@@ -43,7 +43,7 @@ const LoginPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h2>Login to Crypto Analytics</h2>
+        <h2>Login</h2>
         
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">

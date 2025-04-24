@@ -873,3 +873,145 @@
     font-size: 0.9rem;
   }
 }
+
+/* Auth Pages Styling (Login & Register) */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 550px; /* Increased from 450px */
+  background: #16213e; /* Solid color instead of gradient to avoid border issues */
+  border-radius: 20px; /* Increased from 16px */
+  padding: 3.5rem; /* Increased from 2.5rem */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); /* Enhanced shadow */
+  border: 2px solid rgba(79, 172, 254, 0.2); /* Cleaner border with theme color */
+  text-align: center;
+}
+
+.auth-card h2 {
+  margin-bottom: 2.5rem; /* Increased from 1.5rem */
+  font-size: 2.2rem; /* Increased from 1.8rem */
+  font-weight: 700;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.02em;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem; /* Increased from 1.2rem */
+  margin-bottom: 2.5rem; /* Increased from 1.5rem */
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.8rem; /* Increased from 0.5rem */
+  font-size: 1.1rem; /* Increased from 1rem */
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 1.2rem 1.4rem; /* Increased from 0.8rem 1rem */
+  border-radius: 12px; /* Increased from 8px */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(15, 15, 26, 0.6); /* Lighter background */
+  color: #fff;
+  font-size: 1.1rem; /* Increased from 1rem */
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.3); /* Increased from 2px */
+}
+
+.auth-submit {
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  color: #0a0a0a;
+  padding: 1.2rem; /* Increased from 0.8rem */
+  border: none;
+  border-radius: 12px; /* Increased from 8px */
+  font-weight: 700; /* Increased from 600 */
+  font-size: 1.2rem; /* Increased from 1rem */
+  cursor: pointer;
+  margin-top: 1.5rem; /* Increased from 0.5rem */
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 16px rgba(79, 172, 254, 0.4); /* Enhanced shadow */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-submit:hover {
+  transform: translateY(-5px); /* More pronounced hover effect */
+  box-shadow: 0 10px 20px rgba(79, 172, 254, 0.5);
+}
+
+.auth-submit:disabled {
+  background: linear-gradient(90deg, #3a8bc8 0%, #00c2cb 100%);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-switch {
+  margin-top: 2rem; /* Increased from 1.5rem */
+  color: #a0a0a0;
+  font-size: 1.1rem; /* Added font size */
+}
+
+.auth-switch a {
+  color: #4facfe;
+  font-weight: 600; /* Increased from 500 */
+  margin-left: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.auth-switch a:hover {
+  color: #00f2fe;
+  text-decoration: underline;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 2rem; /* Increased from 1.5rem */
+  color: #a0a0a0;
+  font-size: 1.05rem; /* Increased from 0.9rem */
+  transition: color 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.back-link:hover {
+  color: #4facfe;
+  background-color: rgba(79, 172, 254, 0.1);
+}
+
+/* Add responsive adjustments for the auth pages */
+@media (max-width: 600px) {
+  .auth-card {
+    padding: 2.5rem 1.5rem;
+    max-width: 95%;
+  }
+  
+  .auth-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+}
