@@ -1,6 +1,7 @@
 import { CoinType } from '../types';
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface CoinSelectorProps {
   selectedCoin: CoinType;
@@ -16,11 +17,53 @@ const getCoinLogoPath = (coin: CoinType): string => {
 const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, availableCoins, onChange }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+
+  // Calculate dropdown position based on button position
+  useEffect(() => {
+    if (buttonRef.current && dropdownOpen) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  }, [dropdownOpen]);
+
+  // Prevent page scrolling when scrolling inside dropdown
+  useEffect(() => {
+    if (!dropdownOpen || !dropdownRef.current) return;
+
+    const dropdown = dropdownRef.current;
+    
+    const handleWheel = (e: WheelEvent) => {
+      // Prevent default only if we're scrolling inside the dropdown
+      const isScrollingDown = e.deltaY > 0;
+      const isScrollingUp = e.deltaY < 0;
+      const isAtTop = dropdown.scrollTop === 0;
+      const isAtBottom = dropdown.scrollHeight - dropdown.clientHeight - dropdown.scrollTop <= 1;
+      
+      // Only prevent default when trying to scroll beyond bounds
+      if ((isScrollingUp && isAtTop) || (isScrollingDown && isAtBottom)) {
+        e.preventDefault();
+      }
+    };
+    
+    // Add passive: false to ensure we can preventDefault()
+    dropdown.addEventListener('wheel', handleWheel, { passive: false });
+    
+    return () => {
+      dropdown.removeEventListener('wheel', handleWheel);
+    };
+  }, [dropdownOpen]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
       }
     };
@@ -42,9 +85,10 @@ const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, availableCoin
       </label>
       
       {/* Custom dropdown selector */}
-      <div className="custom-select-container" ref={dropdownRef}>
+      <div className="custom-select-container">
         {/* Selected coin display - acts as dropdown toggle */}
         <div 
+          ref={buttonRef}
           className={`selected-coin-display ${dropdownOpen ? 'active' : ''}`}
           onClick={() => setDropdownOpen(!dropdownOpen)}
         >
@@ -64,10 +108,17 @@ const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, availableCoin
           <span className="dropdown-arrow">▼</span>
         </div>
         
-        {/* Dropdown options */}
-        {dropdownOpen && (
+        {/* Dropdown options - Rendered with Portal to avoid being clipped */}
+        {dropdownOpen && createPortal(
           <motion.div 
+            ref={dropdownRef}
             className="coin-dropdown"
+            style={{
+              position: 'absolute',
+              top: `${dropdownPosition.top}px`,
+              left: `${dropdownPosition.left}px`,
+              width: `${dropdownPosition.width}px`
+            }}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
@@ -96,7 +147,8 @@ const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, availableCoin
                 <span className="coin-option-text">{coin}</span>
               </div>
             ))}
-          </motion.div>
+          </motion.div>,
+          document.body
         )}
       </div>
       

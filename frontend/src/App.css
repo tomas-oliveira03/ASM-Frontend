@@ -41,7 +41,7 @@
   margin-bottom: 30px;
   width: 100%;
   position: relative; /* Add relative positioning */
-  z-index: 10;      /* Set z-index lower than dropdown */
+  z-index: 8;      /* Set z-index lower than auth bar components */
 }
 
 .coin-selector,
@@ -128,6 +128,7 @@
   transform: rotate(180deg);
 }
 
+/* Update dropdown styles for better scroll handling */
 .coin-dropdown {
   position: absolute;
   top: calc(100% + 5px);
@@ -138,9 +139,10 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  z-index: 100; /* Ensure dropdown is above controls and other elements */
+  z-index: 2000; /* High z-index to ensure dropdown is always visible */
   max-height: 250px;
-  overflow-y: auto;
+  overflow-y: auto; /* Enable scrolling */
+  overscroll-behavior: contain; /* Prevent scroll chaining to parent */
   scrollbar-width: thin;
   scrollbar-color: #4facfe rgba(15, 15, 26, 0.8);
 }
@@ -588,8 +590,8 @@
   width: 100%;
   margin-bottom: 20px;
   text-align: left;
-  position: relative; /* Optional: Add context if needed, but likely not required now */
-  z-index: 1;         /* Ensure it's below the controls/dropdown */
+  position: relative;
+  z-index: 5; /* Lower than auth-bar and crypto-dashboard */
 }
 
 .forecast-cards-container {
@@ -715,7 +717,7 @@
   }
 }
 
-/* Updated Auth Bar Styles */
+/* Auth Bar Styles - Increase z-index to ensure it's above all content */
 .auth-bar {
   width: 100%;
   padding: 1rem 0;
@@ -724,6 +726,8 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 1rem;
   border-radius: 16px 16px 0 0;
+  position: relative;
+  z-index: 1000; /* Higher z-index to ensure it's always on top */
 }
 
 .auth-container {
@@ -740,6 +744,8 @@
 .auth-coin-selector {
   max-width: 300px;
   min-width: 250px;
+  position: relative;
+  z-index: 1050; /* Even higher z-index for the selector */
 }
 
 .auth-coin-selector .coin-selector {
