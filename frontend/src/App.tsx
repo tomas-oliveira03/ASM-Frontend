@@ -1,11 +1,29 @@
 import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import CryptoDashboard from './components/CryptoDashboard'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import AuthBar from './components/auth/AuthBar'
+import { AuthProvider } from './context/AuthContext'
 
 function App() {
   return (
-    <div className="app">
-      <CryptoDashboard />
-    </div>
+    <AuthProvider>
+      <Router>
+        <div className="app">
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={
+              <>
+                <AuthBar />
+                <CryptoDashboard />
+              </>
+            } />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   )
 }
 
