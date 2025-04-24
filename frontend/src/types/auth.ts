@@ -1,7 +1,7 @@
 export interface User {
   id: string;
   email: string;
-  // Add additional fields that your backend returns
+  name: string;
 }
 
 export interface AuthState {
@@ -17,6 +17,7 @@ export interface LoginCredentials {
 
 export interface RegisterCredentials extends LoginCredentials {
   confirmPassword: string;
+  name: string;
 }
 
 export interface AuthResponse {

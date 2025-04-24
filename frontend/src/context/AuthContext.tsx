@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isLoading: false
   });
 
-  // Actual login function with API call
+  // Updated login function to handle the new response format
   const login = async (credentials: LoginCredentials) => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     
@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
       
       if (!response.ok) {
-        // Handle API error with the exact error message from the server
         setAuthState(prev => ({ ...prev, isLoading: false }));
         return { 
           success: false, 
@@ -43,11 +42,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
       }
       
-      // Success case
+      // Parse user from the new response format
       const user: User = {
-        id: data.id || data._id || 'unknown', // Adapt to your backend's response format
-        email: credentials.email,
-        // Add any other user properties from the response
+        id: data.user?.id || 'unknown',
+        name: data.user?.name || '',
+        email: credentials.email
       };
       
       setAuthState({
@@ -70,12 +69,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Actual register function with API call
+  // Updated register function to include name and handle the new response format
   const register = async (credentials: RegisterCredentials) => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     
     try {
-      // First check if passwords match on client side
       if (credentials.password !== credentials.confirmPassword) {
         setAuthState(prev => ({ ...prev, isLoading: false }));
         return { 
@@ -90,6 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          name: credentials.name, // Include name in request
           email: credentials.email,
           password: credentials.password
         })
@@ -98,7 +97,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
       
       if (!response.ok) {
-        // Handle API error with the exact error message from the server
         setAuthState(prev => ({ ...prev, isLoading: false }));
         return { 
           success: false, 
@@ -106,11 +104,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
       }
       
-      // Success case
+      // Parse user from the new response format
       const user: User = {
-        id: data.id || data._id || 'unknown', // Adapt to your backend's response format
-        email: credentials.email,
-        // Add any other user properties from the response
+        id: data.user?.id || 'unknown',
+        name: data.user?.name || credentials.name, // Use response name or fallback to provided name
+        email: credentials.email
       };
       
       setAuthState({

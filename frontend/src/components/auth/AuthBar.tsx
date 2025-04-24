@@ -15,7 +15,7 @@ const AuthBar = () => {
       <div className="auth-container">
         {isAuthenticated ? (
           <div className="user-info">
-            <span className="welcome-text">Welcome, {user?.email}</span>
+            <span className="welcome-text">Welcome, {user?.name || 'User'}</span>
             <motion.button 
               onClick={logout}
               className="auth-button logout-button"

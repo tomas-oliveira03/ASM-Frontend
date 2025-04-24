@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const RegisterPage = () => {
+  const [name, setName] = useState(''); // Add name state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,7 +18,7 @@ const RegisterPage = () => {
     setError('');
     setShowErrorPopup(false);
     
-    if (!email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
       setShowErrorPopup(true);
       return;
@@ -29,7 +30,7 @@ const RegisterPage = () => {
       return;
     }
     
-    const result = await register({ email, password, confirmPassword });
+    const result = await register({ name, email, password, confirmPassword });
     if (result.success) {
       navigate('/');
     } else {
@@ -53,6 +54,18 @@ const RegisterPage = () => {
         <h2>Create an Account</h2>
         
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+          
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
