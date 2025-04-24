@@ -222,7 +222,7 @@ const CryptoChart: React.FC<CryptoChartProps> = ({ data, selectedFields }) => {
     plugins: {
       title: {
         display: true,
-        text: `${data.coin} - Price and Sentiment Analysis`,
+        text: `Price and Sentiment Analysis`,
         font: {
           size: 18,
           family: "'Inter', sans-serif",

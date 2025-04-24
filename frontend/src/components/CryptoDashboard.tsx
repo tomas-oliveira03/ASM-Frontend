@@ -6,6 +6,7 @@ import PriceForecastCard from './PriceForecastCard';
 import { CoinType, CryptoData, DataField, TimeRange } from '../types';
 import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../services/cryptoService';
 import { websocketService } from '../services/websocketService';
+import { motion } from 'framer-motion';
 
 interface CryptoDashboardProps {
   initialCoin?: CoinType;
@@ -271,6 +272,37 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
   return (
     <div className="crypto-dashboard">
       <h1>Cryptocurrency Dashboard</h1>
+      
+      {/* New Crypto Header - displays name and image */}
+      <motion.div 
+        className="crypto-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <img 
+          src={`/crypto-logos/${selectedCoin}.png`} 
+          alt={`${selectedCoin} logo`} 
+          className="crypto-header-image" 
+          onError={(e) => {
+            // Fallback if image fails to load
+            (e.target as HTMLImageElement).src = "/crypto-logos/generic-crypto.png";
+          }}
+        />
+        <div className="crypto-header-content">
+          <h2 className="crypto-header-name">
+            {selectedCoin === 'BTC' ? 'Bitcoin' : 
+             selectedCoin === 'ETH' ? 'Ethereum' :
+             selectedCoin === 'XRP' ? 'Ripple' :
+             selectedCoin === 'BNB' ? 'Binance Coin' :
+             selectedCoin === 'SOL' ? 'Solana' :
+             selectedCoin === 'DOGE' ? 'Dogecoin' :
+             selectedCoin === 'TRX' ? 'TRON' :
+             selectedCoin === 'ADA' ? 'Cardano' : selectedCoin}
+          </h2>
+          <span className="crypto-header-symbol">{selectedCoin}</span>
+        </div>
+      </motion.div>
       
       <div className="current-price-container">
         {priceStats && (
