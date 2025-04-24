@@ -324,11 +324,6 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.time-range-buttons {
-  display: flex;
-  gap: 8px;
-}
-
 .chart-time-selector button {
   padding: 6px 12px;
   margin: 0 2px;
@@ -692,7 +687,7 @@
     padding: 4px 8px;
     font-size: 0.8rem;
   }
-  
+
   .forecast-cards-container {
     flex-direction: column;
   }

@@ -96,7 +96,7 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
     } finally {
       setLoading(false);
     }
-  }, [selectedTimeRange]);
+  }, []); // Removed selectedTimeRange from dependency array
 
   useEffect(() => {
     setAvailableCoins(getAvailableCoins());
@@ -272,9 +272,6 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
     <div className="crypto-dashboard">
       <h1>Cryptocurrency Dashboard</h1>
       
-      <div className="controls controls-time-only">
-      </div>
-      
       <div className="current-price-container">
         {priceStats && (
           <PriceForecastCard
@@ -290,7 +287,7 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
       
       {cryptoData ? (
         <div className="chart-with-controls">
-          <div className="chart-time-selector">
+          <div className="chart-time-selector compact">
             <TimeRangeSelector 
               selectedTimeRange={selectedTimeRange}
               onChange={handleTimeRangeChange}
