@@ -1091,3 +1091,231 @@
     margin-bottom: 2rem;
   }
 }
+
+* Price Alert Button */
+.price-alert-container {
+  position: absolute;
+  left: 2.5rem;
+  top: 230px; /* Adjust based on your layout */
+  z-index: 10;
+}
+
+.price-alert-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.price-alert-button:hover {
+  border-color: rgba(79, 172, 254, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.bell-icon {
+  font-size: 1.2rem;
+  color: #4facfe;
+}
+
+.alert-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Price Alert Popup */
+.price-alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.price-alert-popup {
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(79, 172, 254, 0.2);
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.price-alert-header {
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(79, 172, 254, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price-alert-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.close-button:hover {
+  color: #ffffff;
+}
+
+.price-alert-content {
+  padding: 1.5rem;
+}
+
+.alert-section {
+  margin-bottom: 1.5rem;
+}
+
+.alert-section label {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #e0e0e0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #a0a0a0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.toggle-buttons button.active {
+  background-color: rgba(79, 172, 254, 0.15);
+  border-color: rgba(79, 172, 254, 0.3);
+  color: #4facfe;
+}
+
+.toggle-buttons button:hover:not(.active) {
+  background-color: rgba(79, 172, 254, 0.05);
+  border-color: rgba(79, 172, 254, 0.15);
+  color: #e0e0e0;
+}
+
+.alert-section input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(15, 15, 26, 0.6);
+  color: #fff;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.alert-section input:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.3);
+}
+
+.current-price-info {
+  margin-top: 1.5rem;
+  padding: 10px;
+  background-color: rgba(79, 172, 254, 0.05);
+  border-radius: 8px;
+  text-align: center;
+  color: #a0a0a0;
+}
+
+.current-price-info strong {
+  color: #ffffff;
+}
+
+.price-alert-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 1.2rem 1.5rem;
+  background-color: rgba(15, 15, 26, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cancel-button {
+  padding: 10px 20px;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #a0a0a0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancel-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.set-alert-button {
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  border: none;
+  border-radius: 8px;
+  color: #0a0a0a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
+
+.set-alert-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(79, 172, 254, 0.4);
+}
+
+@media (max-width: 768px) {
+  .price-alert-container {
+    position: relative;
+    left: auto;
+    top: auto;
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .price-alert-button {
+    width: 100%;
+    justify-content: center;
+    max-width: 200px;
+  }
+}

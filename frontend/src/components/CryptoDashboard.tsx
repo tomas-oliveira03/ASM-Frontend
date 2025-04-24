@@ -3,6 +3,7 @@ import TimeRangeSelector from './TimeRangeSelector';
 import CryptoChart from './CryptoChart';
 import ModelBenchmarks from './ModelBenchmarks';
 import PriceForecastCard from './PriceForecastCard';
+import PriceAlertButton from './PriceAlertButton';
 import { CoinType, CryptoData, DataField, TimeRange } from '../types';
 import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../services/cryptoService';
 import { websocketService } from '../services/websocketService';
@@ -303,6 +304,15 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
           <span className="crypto-header-symbol">{selectedCoin}</span>
         </div>
       </motion.div>
+      
+      <div className="price-alert-container">
+        {priceStats && (
+          <PriceAlertButton 
+            coin={selectedCoin} 
+            currentPrice={priceStats.current} 
+          />
+        )}
+      </div>
       
       <div className="current-price-container">
         {priceStats && (
