@@ -273,10 +273,6 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
       <h1>Cryptocurrency Dashboard</h1>
       
       <div className="controls controls-time-only">
-        <TimeRangeSelector 
-          selectedTimeRange={selectedTimeRange}
-          onChange={handleTimeRangeChange}
-        />
       </div>
       
       <div className="current-price-container">
@@ -294,6 +290,12 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
       
       {cryptoData ? (
         <div className="chart-with-controls">
+          <div className="chart-time-selector">
+            <TimeRangeSelector 
+              selectedTimeRange={selectedTimeRange}
+              onChange={handleTimeRangeChange}
+            />
+          </div>
           <CryptoChart data={cryptoData} selectedFields={selectedFields} />
         </div>
       ) : (

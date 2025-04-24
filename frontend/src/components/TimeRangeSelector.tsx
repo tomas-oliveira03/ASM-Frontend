@@ -14,7 +14,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ selectedTimeRange
   ];
 
   return (
-    <>
+    <div className="time-range-buttons">
       {timeRanges.map((range) => (
         <motion.button
           key={range.value}
@@ -34,7 +34,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ selectedTimeRange
           {range.label}
         </motion.button>
       ))}
-    </>
+    </div>
   );
 };
 
