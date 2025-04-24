@@ -39,7 +39,6 @@ const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, availableCoin
       transition={{ duration: 0.4 }}
     >
       <label htmlFor="coin-select">
-        <span style={{ display: 'block', marginBottom: '8px' }}>Select Cryptocurrency</span>
       </label>
       
       {/* Custom dropdown selector */}

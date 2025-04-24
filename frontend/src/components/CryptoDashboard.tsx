@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import CoinSelector from './CoinSelector';
 import TimeRangeSelector from './TimeRangeSelector';
 import CryptoChart from './CryptoChart';
 import ModelBenchmarks from './ModelBenchmarks';
@@ -8,8 +7,12 @@ import { CoinType, CryptoData, DataField, TimeRange } from '../types';
 import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../services/cryptoService';
 import { websocketService } from '../services/websocketService';
 
-const CryptoDashboard: React.FC = () => {
-  const [selectedCoin, setSelectedCoin] = useState<CoinType>('BTC');
+interface CryptoDashboardProps {
+  initialCoin?: CoinType;
+}
+
+const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }) => {
+  const [selectedCoin, setSelectedCoin] = useState<CoinType>(initialCoin);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('30days');
   const [selectedFields] = useState<DataField[]>(['historical_price', 'predicted_price', 'positive_sentiment_ratio']);
   const [cryptoData, setCryptoData] = useState<CryptoData | null>(null);
@@ -29,6 +32,13 @@ const CryptoDashboard: React.FC = () => {
     sevenDayChange: number;
     sevenDayChangeAmount: number;
   } | null>(null);
+  
+  // Set initial coin from props when it changes
+  useEffect(() => {
+    if (initialCoin !== selectedCoin) {
+      setSelectedCoin(initialCoin);
+    }
+  }, [initialCoin]);
 
   const fetchCryptoData = useCallback(async (coin: CoinType) => {
     setLoading(true);
@@ -180,7 +190,7 @@ const CryptoDashboard: React.FC = () => {
     setCryptoData(null);
     setPriceStats(null);
     
-    // Set the new coin
+    // Set the new coin (URL update happens in the useEffect)
     setSelectedCoin(coin);
     
     // Always force a fresh data fetch when changing coins
@@ -238,11 +248,6 @@ const CryptoDashboard: React.FC = () => {
           <li>Restart both backend and frontend servers after making changes.</li>
         </ol>
         <div className="error-actions">
-          <CoinSelector 
-            selectedCoin={selectedCoin}
-            availableCoins={availableCoins}
-            onChange={handleCoinChange}
-          />
           <button 
             onClick={() => fetchCryptoData(selectedCoin)} 
             className="retry-button"
@@ -267,11 +272,10 @@ const CryptoDashboard: React.FC = () => {
     <div className="crypto-dashboard">
       <h1>Cryptocurrency Dashboard</h1>
       
-      <div className="controls">
-        <CoinSelector 
-          selectedCoin={selectedCoin}
-          availableCoins={availableCoins}
-          onChange={handleCoinChange}
+      <div className="controls controls-time-only">
+        <TimeRangeSelector 
+          selectedTimeRange={selectedTimeRange}
+          onChange={handleTimeRangeChange}
         />
       </div>
       
@@ -290,12 +294,6 @@ const CryptoDashboard: React.FC = () => {
       
       {cryptoData ? (
         <div className="chart-with-controls">
-          <div className="chart-time-selector">
-            <TimeRangeSelector 
-              selectedTimeRange={selectedTimeRange}
-              onChange={handleTimeRangeChange}
-            />
-          </div>
           <CryptoChart data={cryptoData} selectedFields={selectedFields} />
         </div>
       ) : (
