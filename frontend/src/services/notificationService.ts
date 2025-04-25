@@ -143,6 +143,46 @@ export const createAlert = async (
   }
 };
 
+// Edit an existing alert
+export const editAlert = async (
+  alertId: string,
+  coin: CoinType,
+  type: 'real-time' | 'predicted',
+  condition: 'above' | 'below',
+  threshold: number
+): Promise<PriceAlert | null> => {
+  try {
+    // Format request body according to API requirements
+    const alertData = {
+      coin: coin,
+      price: threshold,
+      alertCondition: condition === 'above' ? 'ABOVE' : 'BELOW',
+      monitoredPriceType: type === 'real-time' ? 'REAL' : 'PREDICTED',
+    };
+    
+    console.log('Editing alert with ID:', alertId);
+    console.log('New alert data:', alertData);
+    
+    const response = await fetch(`http://localhost:3001/api/notification/edit?notificationId=${alertId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(alertData)
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return mapApiAlertToAppAlert(data, coin);
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error editing alert:', error);
+    return null;
+  }
+};
+
 // Delete an alert
 export const deleteAlert = async (alertId: string): Promise<boolean> => {
   try {
@@ -161,5 +201,6 @@ export default {
   getAlerts,
   toggleAlertStatus,
   createAlert,
-  deleteAlert
+  deleteAlert,
+  editAlert
 };

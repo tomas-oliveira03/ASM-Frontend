@@ -1,45 +1,57 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CoinType } from '../types';
+import { CoinType, PriceAlert } from '../types';
+import notificationService from '../services/notificationService';
 
-interface PriceAlertPopupProps {
+interface EditPriceAlertPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  currentCoin: CoinType;
+  alert: PriceAlert | null;
   currentPrice: number;
 }
 
-const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
+const EditPriceAlertPopup: React.FC<EditPriceAlertPopupProps> = ({
   isOpen,
   onClose,
-  currentCoin,
+  alert,
   currentPrice
 }) => {
   // State for form fields
   const [notificationType, setNotificationType] = useState<'real-time' | 'predicted'>('real-time');
   const [condition, setCondition] = useState<'above' | 'below'>('above');
   const [threshold, setThreshold] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  // Add ref to track if we've set the initial threshold for this popup session
-  const initializedRef = useRef(false);
+  // Keep track of initial values to compare changes
+  const [initialValues, setInitialValues] = useState({
+    type: 'real-time',
+    condition: 'above',
+    threshold: ''
+  });
+
+  // Track if form has been modified
+  const hasChanges = () => {
+    return notificationType !== initialValues.type ||
+           condition !== initialValues.condition ||
+           parseFloat(threshold) !== parseFloat(initialValues.threshold);
+  };
   
-  // Set initial threshold and reset selections ONLY when popup first opens
+  // Initialize form with alert data when popup opens
   useEffect(() => {
-    if (isOpen) {
-      // Reset notification type and condition every time popup opens
-      setNotificationType('real-time');
-      setCondition('above');
+    if (isOpen && alert) {
+      setNotificationType(alert.type);
+      setCondition(alert.condition);
+      setThreshold(alert.threshold.toString());
       
-      // Only set the threshold when popup first opens, not on subsequent price updates
-      if (!initializedRef.current) {
-        setThreshold(currentPrice.toFixed(2));
-        initializedRef.current = true;
-      }
-    } else {
-      // Reset the initialization flag when popup closes
-      initializedRef.current = false;
+      // Store initial values for comparison
+      setInitialValues({
+        type: alert.type,
+        condition: alert.condition,
+        threshold: alert.threshold.toString()
+      });
     }
-  }, [isOpen, currentPrice]);
+  }, [isOpen, alert]);
   
   // Handle clicking outside to close popup
   const popupRef = useRef<HTMLDivElement>(null);
@@ -60,12 +72,10 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Add loading state
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   // Handle form submission
   const handleSubmit = async () => {
+    if (!alert) return;
+    
     // Validate input
     if (!threshold || isNaN(parseFloat(threshold))) {
       setError('Please enter a valid price threshold');
@@ -76,63 +86,27 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
     setError(null);
     
     try {
-      // Get userId from localStorage
-      let userId = '';
-      const userJson = localStorage.getItem('user');
-      if (userJson) {
-        try {
-          const user = JSON.parse(userJson);
-          userId = user.id;
-        } catch (e) {
-          console.error('Error parsing user from localStorage:', e);
-        }
+      const result = await notificationService.editAlert(
+        alert.id,
+        alert.coin,
+        notificationType,
+        condition,
+        parseFloat(threshold)
+      );
+      
+      if (result) {
+        onClose();
+      } else {
+        throw new Error('Failed to update alert');
       }
-      
-      // Build URL with userId
-      let url = `http://localhost:3001/api/notification/add`;
-      if (userId) {
-        url += `?userId=${userId}`;
-      }
-      
-      // Format request body
-      const alertData = {
-        coin: currentCoin,
-        price: parseFloat(threshold),
-        alertCondition: condition === 'above' ? 'ABOVE' : 'BELOW',
-        monitoredPriceType: notificationType === 'real-time' ? 'REAL' : 'PREDICTED',
-        isActive: true
-      };
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(alertData)
-      });
-      
-      // Check for duplicate alert error (409 Conflict)
-      if (response.status === 409) {
-        setError('Alert already exists! You already have an alert with these exact criteria.');
-        return;
-      }
-      
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-      
-      // Success - close the popup
-      onClose();
-      
     } catch (err) {
-      console.error('Error creating alert:', err);
+      console.error('Error updating alert:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Clear error when any form field changes
   const handleNotificationTypeChange = (type: 'real-time' | 'predicted') => {
     setNotificationType(type);
     if (error) setError(null);
@@ -162,7 +136,7 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {isOpen && alert && (
         <motion.div 
           className="price-alert-overlay"
           initial={{ opacity: 0 }}
@@ -178,7 +152,7 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
             transition={{ duration: 0.3 }}
           >
             <div className="price-alert-header">
-              <h3>Set Price Alert for {currentCoin}</h3>
+              <h3>Edit Alert for {alert.coin}</h3>
               <button 
                 className="close-button"
                 onClick={onClose}
@@ -236,7 +210,6 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
               </div>
               
               <div className="current-price-info">
-                {/* This will update with real-time prices since it uses the currentPrice prop directly */}
                 Current price: <strong>${currentPrice.toLocaleString()}</strong>
               </div>
 
@@ -263,9 +236,9 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
               <button 
                 className="set-alert-button"
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !hasChanges()}
               >
-                {isSubmitting ? 'Creating...' : 'Set Alert'}
+                {isSubmitting ? 'Updating...' : 'Update Alert'}
               </button>
             </div>
           </motion.div>
@@ -275,4 +248,4 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
   );
 };
 
-export default PriceAlertPopup;
+export default EditPriceAlertPopup;
