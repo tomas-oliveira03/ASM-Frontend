@@ -1147,7 +1147,7 @@
 
 .price-alert-popup {
   width: 100%;
-  max-width: 400px;
+  max-width: 600px; /* Increased from 400px for wider popup */
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border-radius: 16px;
   border: 1px solid rgba(79, 172, 254, 0.2);
@@ -1156,7 +1156,7 @@
 }
 
 .price-alert-header {
-  padding: 1.2rem 1.5rem;
+  padding: 1.5rem 2rem; /* Increased padding for more spacious header */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1167,27 +1167,12 @@
 .price-alert-header h3 {
   margin: 0;
   color: #ffffff;
-  font-size: 1.2rem;
+  font-size: 1.4rem; /* Increased from 1.2rem for better visibility */
   font-weight: 600;
 }
 
-.close-button {
-  background: none;
-  border: none;
-  color: #a0a0a0;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.2s ease;
-}
-
-.close-button:hover {
-  color: #ffffff;
-}
-
 .price-alert-content {
-  padding: 1.5rem;
+  padding: 2rem; /* Increased from 1.5rem for more spacious content */
 }
 
 .alert-section {
@@ -1204,24 +1189,25 @@
 
 .toggle-buttons {
   display: flex;
-  gap: 10px;
+  gap: 15px; /* Increased from 10px for better separation */
+  margin: 15px 0; /* Added vertical spacing to reduce cluttered feeling */
 }
 
 .toggle-buttons button {
   flex: 1;
-  padding: 12px;
+  padding: 16px; /* Increased from 12px to make buttons bigger */
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 10px; /* Slightly increased for better proportions */
   background-color: rgba(0, 0, 0, 0.2);
   color: #a0a0a0;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600; /* Increased from 500 for better visibility */
+  font-size: 1.05rem; /* Increased from 0.9rem for better readability */
 }
 
 .toggle-buttons button.active {
-  background-color: rgba(79, 172, 254, 0.15);
+  background-color: rgba(79, 172, 254, 0.25); /* Increased opacity for more emphasis */
   border-color: rgba(79, 172, 254, 0.3);
   color: #4facfe;
 }
@@ -1464,7 +1450,7 @@
 
 /* Price Alerts List Styling */
 .alerts-list-content {
-  max-height: 350px;
+  max-height: 450px; /* Increased from 350px for taller content area */
   overflow-y: auto;
 }
 
