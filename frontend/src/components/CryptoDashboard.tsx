@@ -9,12 +9,14 @@ import { CoinType, CryptoData, DataField, TimeRange } from '../types';
 import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../services/cryptoService';
 import { websocketService } from '../services/websocketService';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 interface CryptoDashboardProps {
   initialCoin?: CoinType;
 }
 
 const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }) => {
+  const { isAuthenticated } = useAuth();
   const [selectedCoin, setSelectedCoin] = useState<CoinType>(initialCoin);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('30days');
   const [selectedFields] = useState<DataField[]>(['historical_price', 'predicted_price', 'positive_sentiment_ratio']);
@@ -306,15 +308,6 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
         </div>
       </motion.div>
       
-      <div className="price-alert-container">
-        {priceStats && (
-          <PriceAlertButton 
-            coin={selectedCoin} 
-            currentPrice={priceStats.current} 
-          />
-        )}
-      </div>
-      
       <div className="current-price-container">
         {priceStats && (
           <PriceForecastCard
@@ -325,6 +318,31 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
             changeAmount={priceStats.changeAmount}
             coin={selectedCoin}
           />
+        )}
+      </div>
+
+      <div className="price-alert-container">
+        {priceStats && (
+          <>
+            {isAuthenticated ? (
+              <PriceAlertButton 
+                coin={selectedCoin} 
+                currentPrice={priceStats.current} 
+              />
+            ) : (
+              <motion.div 
+                className="price-alert-button disabled"
+                whileHover={{ scale: 1.05 }}
+                title="Login or register to set price alerts"
+              >
+                <span className="bell-icon">🔔</span>
+                <span className="alert-label">Price Alerts</span>
+                <div className="auth-tooltip">
+                  Login or register to set price alerts
+                </div>
+              </motion.div>
+            )}
+          </>
         )}
       </div>
       

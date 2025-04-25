@@ -876,7 +876,6 @@
   max-width: 450px;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 107, 107, 0.3);
-  overflow: hidden;
 }
 
 .error-popup-header {
@@ -1092,11 +1091,13 @@
   }
 }
 
-* Price Alert Button */
+/* Price Alert Button */
 .price-alert-container {
-  position: absolute;
-  left: 2.5rem;
-  top: 230px; /* Adjust based on your layout */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  position: relative;
   z-index: 10;
 }
 
@@ -1412,5 +1413,51 @@
     width: 100%;
     justify-content: center;
     max-width: 200px;
+  }
+}
+
+/* Disabled Price Alert Button */
+.price-alert-button.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.price-alert-button.disabled:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transform: none;
+}
+
+.auth-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.price-alert-button.disabled:hover .auth-tooltip {
+  opacity: 1;
+}
+
+/* Responsive styles for the tooltip */
+@media (max-width: 768px) {
+  .auth-tooltip {
+    width: 200px;
+    white-space: normal;
+    text-align: center;
   }
 }
