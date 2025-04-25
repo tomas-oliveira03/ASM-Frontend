@@ -21,10 +21,13 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
   const [condition, setCondition] = useState<'above' | 'below'>('above');
   const [threshold, setThreshold] = useState('');
   
-  // Set initial threshold based on current price when popup opens
+  // Set initial threshold and reset selections based on current price when popup opens
   useEffect(() => {
     if (isOpen) {
       setThreshold(currentPrice.toFixed(2));
+      // Reset to default values whenever the popup opens
+      setNotificationType('real-time');
+      setCondition('above');
     }
   }, [isOpen, currentPrice]);
   
@@ -149,7 +152,20 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
                 <input 
                   type="number" 
                   value={threshold}
-                  onChange={(e) => setThreshold(e.target.value)}
+                  onChange={(e) => {
+                    // Limit to 2 decimal places
+                    const value = e.target.value;
+                    
+                    // Check if the value has more than 2 decimal places
+                    const decimalParts = value.split('.');
+                    if (decimalParts.length > 1 && decimalParts[1].length > 2) {
+                      // Truncate to 2 decimal places
+                      setThreshold(Number(value).toFixed(2));
+                    } else {
+                      setThreshold(value);
+                    }
+                  }}
+                  step="0.01"
                   placeholder="Enter price threshold"
                 />
               </div>
