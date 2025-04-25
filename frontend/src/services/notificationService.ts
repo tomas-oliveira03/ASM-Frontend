@@ -22,16 +22,6 @@ const mapApiAlertToAppAlert = (apiAlert: ApiPriceAlert, coin: CoinType): PriceAl
   };
 };
 
-// Map app's PriceAlert to API format for sending
-const mapAppAlertToApiAlert = (appAlert: Partial<PriceAlert>): Partial<ApiPriceAlert> => {
-  return {
-    alertCondition: appAlert.condition === 'above' ? 'ABOVE' : 'BELOW',
-    isActive: appAlert.active,
-    monitoredPriceType: appAlert.type === 'real-time' ? 'REAL' : 'PREDICTED',
-    price: appAlert.threshold
-  };
-};
-
 // Get alerts for a specific coin
 export const getAlerts = async (coin: CoinType, userId: string = ''): Promise<PriceAlert[]> => {
   try {
