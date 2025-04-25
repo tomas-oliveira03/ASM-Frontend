@@ -36,15 +36,24 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
   }, [isOpen, currentCoin, refreshTrigger]); // Add refreshTrigger to dependencies
   
   // Toggle alert status
-  const handleToggleStatus = async (alertId: string, currentStatus: boolean) => {
+  const handleToggleStatus = (alertId: string, currentStatus: boolean) => {
+    // 1. Immediately update UI state (optimistic update)
     const newStatus = !currentStatus;
-    const success = await notificationService.toggleAlertStatus(alertId, newStatus);
+    setAlerts(alerts.map(alert => 
+      alert.id === alertId ? { ...alert, active: newStatus } : alert
+    ));
     
-    if (success) {
-      setAlerts(alerts.map(alert => 
-        alert.id === alertId ? { ...alert, active: newStatus } : alert
-      ));
-    }
+    // 2. Make API call in background
+    notificationService.toggleAlertStatus(alertId, newStatus)
+      .then(success => {
+        // 3. If the API call fails, revert the UI change
+        if (!success) {
+          console.error('Failed to update alert status on server');
+          setAlerts(alerts.map(alert => 
+            alert.id === alertId ? { ...alert, active: currentStatus } : alert
+          ));
+        }
+      });
   };
   
   // Delete alert

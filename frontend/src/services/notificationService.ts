@@ -76,7 +76,7 @@ export const getAlerts = async (coin: CoinType, userId: string = ''): Promise<Pr
 // Toggle alert active status
 export const toggleAlertStatus = async (alertId: string, isActive: boolean): Promise<boolean> => {
   try {
-    const response = await fetch(`http://localhost:3001/api/notification/${alertId}/status`, {
+    const response = await fetch(`http://localhost:3001/api/notification/edit?notificationId=${alertId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
