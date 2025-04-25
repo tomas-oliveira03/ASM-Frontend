@@ -30,7 +30,7 @@ const PredictionBenchmarkTable: React.FC<PredictionBenchmarkTableProps> = ({ ben
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h3>Previous Prediction Accuracy</h3>
+      <h3>Previous Predicted Prices</h3>
       <div className="table-container">
         <table>
           <thead>
