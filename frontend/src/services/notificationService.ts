@@ -115,17 +115,25 @@ export const createAlert = async (
       }
     }
     
+    // Build the URL with userId as query parameter
+    let url = `http://localhost:3001/api/notification/add`;
+    if (effectiveUserId && effectiveUserId !== 'unknown') {
+      url += `?userId=${effectiveUserId}`;
+    }
+    
+    // Format request body according to API requirements
     const alertData = {
-      coin,
-      monitoredPriceType: type === 'real-time' ? 'REAL' : 'PREDICTED',
-      alertCondition: condition === 'above' ? 'ABOVE' : 'BELOW',
+      coin: coin,
       price: threshold,
-      userId: effectiveUserId
+      alertCondition: condition === 'above' ? 'ABOVE' : 'BELOW',
+      monitoredPriceType: type === 'real-time' ? 'REAL' : 'PREDICTED',
+      isActive: true
     };
     
-    console.log('Creating alert with data:', alertData); // Debug log
+    console.log('Creating alert with URL:', url);
+    console.log('Alert data:', alertData);
     
-    const response = await fetch(`http://localhost:3001/api/notification`, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

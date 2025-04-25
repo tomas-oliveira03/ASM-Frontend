@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CoinType } from '../types';
 import PriceAlertPopup from './PriceAlertPopup';
@@ -12,6 +12,8 @@ interface PriceAlertButtonProps {
 const PriceAlertButton: React.FC<PriceAlertButtonProps> = ({ coin, currentPrice }) => {
   const [isListOpen, setIsListOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  // Use a ref to force refresh of alerts list when needed
+  const refreshCounter = useRef(0);
   
   const handleOpenList = () => {
     setIsListOpen(true);
@@ -28,8 +30,10 @@ const PriceAlertButton: React.FC<PriceAlertButtonProps> = ({ coin, currentPrice 
   
   const handleCloseCreate = () => {
     setIsCreateOpen(false);
-    // Go back to list after creating
+    // Go back to list after creating and refresh the list
     setIsListOpen(true);
+    // Increment counter to trigger useEffect in PriceAlertsList
+    refreshCounter.current += 1;
   };
 
   return (
@@ -51,6 +55,7 @@ const PriceAlertButton: React.FC<PriceAlertButtonProps> = ({ coin, currentPrice 
         onAddNew={handleOpenCreate}
         currentCoin={coin}
         currentPrice={currentPrice}
+        refreshTrigger={refreshCounter.current} // Pass refresh trigger
       />
       
       <PriceAlertPopup

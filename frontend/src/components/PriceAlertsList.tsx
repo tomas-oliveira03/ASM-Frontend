@@ -9,6 +9,7 @@ interface PriceAlertsListProps {
   onAddNew: () => void;
   currentCoin: CoinType;
   currentPrice: number;
+  refreshTrigger?: number; // Add this prop
 }
 
 const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
@@ -16,12 +17,13 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
   onClose,
   onAddNew,
   currentCoin,
-  currentPrice
+  currentPrice,
+  refreshTrigger = 0
 }) => {
   const [alerts, setAlerts] = useState<PriceAlert[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Fetch alerts when component mounts or coin changes
+  // Fetch alerts when component mounts, coin changes, or refreshTrigger changes
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
@@ -31,7 +33,7 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
           setLoading(false);
         });
     }
-  }, [isOpen, currentCoin]);
+  }, [isOpen, currentCoin, refreshTrigger]); // Add refreshTrigger to dependencies
   
   // Toggle alert status
   const handleToggleStatus = async (alertId: string, currentStatus: boolean) => {
@@ -47,13 +49,11 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
   
   // Delete alert
   const handleDeleteAlert = async (alertId: string) => {
-    if (window.confirm('Are you sure you want to delete this alert?')) {
       const success = await notificationService.deleteAlert(alertId);
       
       if (success) {
         setAlerts(alerts.filter(alert => alert.id !== alertId));
       }
-    }
   };
   
   return (

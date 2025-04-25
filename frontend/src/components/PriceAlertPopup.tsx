@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CoinType } from '../types';
+import notificationService from '../services/notificationService'; // Import the notification service
 
 interface PriceAlertPopupProps {
   isOpen: boolean;
@@ -46,21 +47,37 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
     };
   }, [isOpen, onClose]);
 
+  // Add loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Handle form submission
-  const handleSubmit = () => {
-    // Here you would integrate with your notification system
-    // For now, we'll just log the alert and close the popup
-    console.log('Alert set:', {
-      coin: currentCoin,
-      type: notificationType,
-      condition: condition,
-      threshold: parseFloat(threshold)
-    });
+  const handleSubmit = async () => {
+    // Validate input
+    if (!threshold || isNaN(parseFloat(threshold))) {
+      setError('Please enter a valid price threshold');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
     
-    // Show confirmation message to user
-    alert(`${notificationType === 'real-time' ? 'Real-time' : 'Predicted'} price alert set for ${currentCoin} when price is ${condition} $${threshold}`);
-    
-    onClose();
+    try {
+      // Call the createAlert function from notificationService
+      await notificationService.createAlert(
+        currentCoin,
+        notificationType,
+        condition,
+        parseFloat(threshold)
+      );
+      onClose();
+      
+    } catch (err) {
+      console.error('Error creating alert:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -113,16 +130,16 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
                 <label>Notify me when price is:</label>
                 <div className="toggle-buttons">
                   <button 
-                    className={condition === 'above' ? 'active' : ''}
-                    onClick={() => setCondition('above')}
-                  >
-                    Above
-                  </button>
-                  <button 
                     className={condition === 'below' ? 'active' : ''}
                     onClick={() => setCondition('below')}
                   >
                     Below
+                  </button>
+                  <button 
+                    className={condition === 'above' ? 'active' : ''}
+                    onClick={() => setCondition('above')}
+                  >
+                    Above
                   </button>
                 </div>
               </div>
@@ -140,20 +157,28 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
               <div className="current-price-info">
                 Current price: <strong>${currentPrice.toLocaleString()}</strong>
               </div>
+
+              {error && (
+                <div className="alert-error-message">
+                  {error}
+                </div>
+              )}
             </div>
             
             <div className="price-alert-actions">
               <button 
                 className="cancel-button"
                 onClick={onClose}
+                disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button 
                 className="set-alert-button"
                 onClick={handleSubmit}
+                disabled={isSubmitting}
               >
-                Set Alert
+                {isSubmitting ? 'Creating...' : 'Set Alert'}
               </button>
             </div>
           </motion.div>
