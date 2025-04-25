@@ -148,7 +148,7 @@ export const createAlert = async (
 // Delete an alert
 export const deleteAlert = async (alertId: string): Promise<boolean> => {
   try {
-    const response = await fetch(`http://localhost:3001/api/notification/${alertId}`, {
+    const response = await fetch(`http://localhost:3001/api/notification/?notificationId=${alertId}`, {
       method: 'DELETE'
     });
     
