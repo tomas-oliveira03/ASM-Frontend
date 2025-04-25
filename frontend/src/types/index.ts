@@ -21,6 +21,12 @@ export interface CoinPriceUpdate {
   price: number;
 }
 
+export interface PredictionBenchmark {
+  benchmarkDate: string;
+  predictedPrice: number;
+  realPrice: number;
+}
+
 export interface CryptoData {
   _id?: string;
   coin: string;
@@ -30,6 +36,7 @@ export interface CryptoData {
   predicted_price: PriceDataPoint[];
   positive_sentiment_ratio: SentimentDataPoint[];
   model_benchmarks?: ModelBenchmarks;
+  prediction_benchmarks?: PredictionBenchmark[]; // New field for previous predictions
 }
 
 export type TimeRange = '7days' | '30days' | '1year';

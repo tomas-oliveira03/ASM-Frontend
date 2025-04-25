@@ -4,6 +4,7 @@ import CryptoChart from './CryptoChart';
 import ModelBenchmarks from './ModelBenchmarks';
 import PriceForecastCard from './PriceForecastCard';
 import PriceAlertButton from './PriceAlertButton';
+import PredictionBenchmarkTable from './PredictionBenchmarkTable';
 import { CoinType, CryptoData, DataField, TimeRange } from '../types';
 import { getCryptoData, getAvailableCoins, filterDataByTimeRange } from '../services/cryptoService';
 import { websocketService } from '../services/websocketService';
@@ -365,6 +366,10 @@ const CryptoDashboard: React.FC<CryptoDashboardProps> = ({ initialCoin = 'BTC' }
           </>
         )}
       </div>
+
+      {cryptoData.prediction_benchmarks && cryptoData.prediction_benchmarks.length > 0 && (
+        <PredictionBenchmarkTable benchmarks={cryptoData.prediction_benchmarks} />
+      )}
       
       {cryptoData.model_benchmarks && (
         <ModelBenchmarks benchmarks={cryptoData.model_benchmarks} />
