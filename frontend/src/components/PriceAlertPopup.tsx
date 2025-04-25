@@ -21,13 +21,24 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
   const [condition, setCondition] = useState<'above' | 'below'>('above');
   const [threshold, setThreshold] = useState('');
   
-  // Set initial threshold and reset selections based on current price when popup opens
+  // Add ref to track if we've set the initial threshold for this popup session
+  const initializedRef = useRef(false);
+  
+  // Set initial threshold and reset selections ONLY when popup first opens
   useEffect(() => {
     if (isOpen) {
-      setThreshold(currentPrice.toFixed(2));
-      // Reset to default values whenever the popup opens
+      // Reset notification type and condition every time popup opens
       setNotificationType('real-time');
       setCondition('above');
+      
+      // Only set the threshold when popup first opens, not on subsequent price updates
+      if (!initializedRef.current) {
+        setThreshold(currentPrice.toFixed(2));
+        initializedRef.current = true;
+      }
+    } else {
+      // Reset the initialization flag when popup closes
+      initializedRef.current = false;
     }
   }, [isOpen, currentPrice]);
   
@@ -171,6 +182,7 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
               </div>
               
               <div className="current-price-info">
+                {/* This will update with real-time prices since it uses the currentPrice prop directly */}
                 Current price: <strong>${currentPrice.toLocaleString()}</strong>
               </div>
 
