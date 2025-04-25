@@ -77,13 +77,52 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
     setError(null);
     
     try {
-      // Call the createAlert function from notificationService
-      await notificationService.createAlert(
-        currentCoin,
-        notificationType,
-        condition,
-        parseFloat(threshold)
-      );
+      // Get userId from localStorage
+      let userId = '';
+      const userJson = localStorage.getItem('user');
+      if (userJson) {
+        try {
+          const user = JSON.parse(userJson);
+          userId = user.id;
+        } catch (e) {
+          console.error('Error parsing user from localStorage:', e);
+        }
+      }
+      
+      // Build URL with userId
+      let url = `http://localhost:3001/api/notification/add`;
+      if (userId) {
+        url += `?userId=${userId}`;
+      }
+      
+      // Format request body
+      const alertData = {
+        coin: currentCoin,
+        price: parseFloat(threshold),
+        alertCondition: condition === 'above' ? 'ABOVE' : 'BELOW',
+        monitoredPriceType: notificationType === 'real-time' ? 'REAL' : 'PREDICTED',
+        isActive: true
+      };
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(alertData)
+      });
+      
+      // Check for duplicate alert error (409 Conflict)
+      if (response.status === 409) {
+        setError('Alert already exists! You already have an alert with these exact criteria.');
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+      
+      // Success - close the popup
       onClose();
       
     } catch (err) {
@@ -92,6 +131,34 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Clear error when any form field changes
+  const handleNotificationTypeChange = (type: 'real-time' | 'predicted') => {
+    setNotificationType(type);
+    if (error) setError(null);
+  };
+
+  const handleConditionChange = (cond: 'above' | 'below') => {
+    setCondition(cond);
+    if (error) setError(null);
+  };
+
+  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Limit to 2 decimal places
+    const value = e.target.value;
+    
+    // Check if the value has more than 2 decimal places
+    const decimalParts = value.split('.');
+    if (decimalParts.length > 1 && decimalParts[1].length > 2) {
+      // Truncate to 2 decimal places
+      setThreshold(Number(value).toFixed(2));
+    } else {
+      setThreshold(value);
+    }
+    
+    // Clear error when input changes
+    if (error) setError(null);
   };
 
   return (
@@ -127,13 +194,13 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
                 <div className="toggle-buttons">
                   <button 
                     className={notificationType === 'real-time' ? 'active' : ''}
-                    onClick={() => setNotificationType('real-time')}
+                    onClick={() => handleNotificationTypeChange('real-time')}
                   >
                     Real-time Price
                   </button>
                   <button 
                     className={notificationType === 'predicted' ? 'active' : ''}
-                    onClick={() => setNotificationType('predicted')}
+                    onClick={() => handleNotificationTypeChange('predicted')}
                   >
                     Predicted Price
                   </button>
@@ -145,13 +212,13 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
                 <div className="toggle-buttons">
                   <button 
                     className={condition === 'below' ? 'active' : ''}
-                    onClick={() => setCondition('below')}
+                    onClick={() => handleConditionChange('below')}
                   >
                     Below
                   </button>
                   <button 
                     className={condition === 'above' ? 'active' : ''}
-                    onClick={() => setCondition('above')}
+                    onClick={() => handleConditionChange('above')}
                   >
                     Above
                   </button>
@@ -163,19 +230,7 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
                 <input 
                   type="number" 
                   value={threshold}
-                  onChange={(e) => {
-                    // Limit to 2 decimal places
-                    const value = e.target.value;
-                    
-                    // Check if the value has more than 2 decimal places
-                    const decimalParts = value.split('.');
-                    if (decimalParts.length > 1 && decimalParts[1].length > 2) {
-                      // Truncate to 2 decimal places
-                      setThreshold(Number(value).toFixed(2));
-                    } else {
-                      setThreshold(value);
-                    }
-                  }}
+                  onChange={handleThresholdChange}
                   step="0.01"
                   placeholder="Enter price threshold"
                 />
@@ -187,9 +242,14 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
               </div>
 
               {error && (
-                <div className="alert-error-message">
+                <motion.div 
+                  className="alert-error-message"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
                   {error}
-                </div>
+                </motion.div>
               )}
             </div>
             
