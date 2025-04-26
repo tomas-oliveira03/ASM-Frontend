@@ -1626,3 +1626,63 @@ input:checked + .slider:before {
 .alert-item.inactive .alert-type {
   color: #707070;
 }
+
+/* Alert filters */
+.alerts-filter-section {
+  background-color: rgba(15, 15, 26, 0.4);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.filter-row {
+  margin-bottom: 10px;
+}
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  margin-right: 8px;
+  min-width: 70px;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-options button {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #a0a0a0;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-options button:hover {
+  background-color: rgba(79, 172, 254, 0.1);
+  border-color: rgba(79, 172, 254, 0.15);
+  color: #e0e0e0;
+}
+
+.filter-options button.active {
+  background-color: rgba(79, 172, 254, 0.25);
+  border-color: rgba(79, 172, 254, 0.3);
+  color: #4facfe;
+}

@@ -25,6 +25,13 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
   const [loading, setLoading] = useState(true);
   const [editingAlert, setEditingAlert] = useState<PriceAlert | null>(null);
   
+  // Add filter states
+  const [filters, setFilters] = useState({
+    status: 'all', // 'all', 'active', 'inactive'
+    type: 'all',   // 'all', 'real-time', 'predicted'
+    condition: 'all' // 'all', 'above', 'below'
+  });
+  
   // Fetch alerts when component mounts, coin changes, or refreshTrigger changes
   useEffect(() => {
     if (isOpen) {
@@ -45,6 +52,31 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
         });
     }
   }, [isOpen, currentCoin, refreshTrigger]);
+  
+  // Apply filters to alerts
+  const filteredAlerts = alerts.filter(alert => {
+    // Filter by status
+    if (filters.status !== 'all') {
+      if (filters.status === 'active' && !alert.active) return false;
+      if (filters.status === 'inactive' && alert.active) return false;
+    }
+    
+    // Filter by type
+    if (filters.type !== 'all' && alert.type !== filters.type) return false;
+    
+    // Filter by condition
+    if (filters.condition !== 'all' && alert.condition !== filters.condition) return false;
+    
+    return true;
+  });
+
+  // Handle filter changes
+  const handleFilterChange = (filterType: 'status' | 'type' | 'condition', value: string) => {
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [filterType]: value
+    }));
+  };
   
   // Toggle alert status
   const handleToggleStatus = (alertId: string, currentStatus: boolean) => {
@@ -118,6 +150,89 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
                 <div className="current-price-info">
                   Current price: <strong>${currentPrice.toLocaleString()}</strong>
                 </div>
+
+                {/* Filters section */}
+                {!loading && alerts.length > 0 && (
+                  <div className="alerts-filter-section">
+                    <div className="filter-row">
+                      <div className="filter-group">
+                        <label className="filter-label">Status:</label>
+                        <div className="filter-options">
+                          <button 
+                            className={filters.status === 'all' ? 'active' : ''}
+                            onClick={() => handleFilterChange('status', 'all')}
+                          >
+                            All
+                          </button>
+                          <button 
+                            className={filters.status === 'active' ? 'active' : ''}
+                            onClick={() => handleFilterChange('status', 'active')}
+                          >
+                            Active
+                          </button>
+                          <button 
+                            className={filters.status === 'inactive' ? 'active' : ''}
+                            onClick={() => handleFilterChange('status', 'inactive')}
+                          >
+                            Inactive
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="filter-row">
+                      <div className="filter-group">
+                        <label className="filter-label">Type:</label>
+                        <div className="filter-options">
+                          <button 
+                            className={filters.type === 'all' ? 'active' : ''}
+                            onClick={() => handleFilterChange('type', 'all')}
+                          >
+                            All
+                          </button>
+                          <button 
+                            className={filters.type === 'real-time' ? 'active' : ''}
+                            onClick={() => handleFilterChange('type', 'real-time')}
+                          >
+                            ⚡ Real-time
+                          </button>
+                          <button 
+                            className={filters.type === 'predicted' ? 'active' : ''}
+                            onClick={() => handleFilterChange('type', 'predicted')}
+                          >
+                            🔮 Predicted
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="filter-row">
+                      <div className="filter-group">
+                        <label className="filter-label">Condition:</label>
+                        <div className="filter-options">
+                          <button 
+                            className={filters.condition === 'all' ? 'active' : ''}
+                            onClick={() => handleFilterChange('condition', 'all')}
+                          >
+                            All
+                          </button>
+                          <button 
+                            className={filters.condition === 'below' ? 'active' : ''}
+                            onClick={() => handleFilterChange('condition', 'below')}
+                          >
+                            📉 Below
+                          </button>
+                          <button 
+                            className={filters.condition === 'above' ? 'active' : ''}
+                            onClick={() => handleFilterChange('condition', 'above')}
+                          >
+                            📈 Above
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 {loading ? (
                   <div className="loading-message">Loading your alerts...</div>
@@ -129,45 +244,51 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
                       </div>
                     ) : (
                       <div className="alerts-list">
-                        {alerts.map(alert => (
-                          <div 
-                            key={alert.id} 
-                            className={`alert-item ${!alert.active ? 'inactive' : ''}`}
-                          >
-                            <button 
-                              className="edit-button"
-                              onClick={() => handleEditAlert(alert)}
-                              title="Edit alert"
-                            >
-                              ✏️
-                            </button>
-                            <div className="alert-info">
-                              <div className="alert-type">
-                                {alert.type === 'real-time' ? '⚡ Real-time' : '🔮 Predicted'}
-                              </div>
-                              <div className="alert-condition">
-                                {alert.condition === 'above' ? '📈' : '📉'} Price {alert.condition} <strong>${alert.threshold.toLocaleString()}</strong>
-                              </div>
-                            </div>
-                            <div className="alert-actions">
-                              <label className="toggle">
-                                <input 
-                                  type="checkbox" 
-                                  checked={alert.active}
-                                  onChange={() => handleToggleStatus(alert.id, alert.active)}
-                                />
-                                <span className="slider"></span>
-                              </label>
-                              <button 
-                                className="delete-button"
-                                onClick={() => handleDeleteAlert(alert.id)}
-                                title="Delete alert"
-                              >
-                                🗑️
-                              </button>
-                            </div>
+                        {filteredAlerts.length === 0 ? (
+                          <div className="no-alerts-message">
+                            <p>No alerts match your current filters.</p>
                           </div>
-                        ))}
+                        ) : (
+                          filteredAlerts.map(alert => (
+                            <div 
+                              key={alert.id} 
+                              className={`alert-item ${!alert.active ? 'inactive' : ''}`}
+                            >
+                              <button 
+                                className="edit-button"
+                                onClick={() => handleEditAlert(alert)}
+                                title="Edit alert"
+                              >
+                                ✏️
+                              </button>
+                              <div className="alert-info">
+                                <div className="alert-type">
+                                  {alert.type === 'real-time' ? '⚡ Real-time' : '🔮 Predicted'}
+                                </div>
+                                <div className="alert-condition">
+                                  {alert.condition === 'above' ? '📈' : '📉'} Price {alert.condition} <strong>${alert.threshold.toLocaleString()}</strong>
+                                </div>
+                              </div>
+                              <div className="alert-actions">
+                                <label className="toggle">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={alert.active}
+                                    onChange={() => handleToggleStatus(alert.id, alert.active)}
+                                  />
+                                  <span className="slider"></span>
+                                </label>
+                                <button 
+                                  className="delete-button"
+                                  onClick={() => handleDeleteAlert(alert.id)}
+                                  title="Delete alert"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
                       </div>
                     )}
                   </>
