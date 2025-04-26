@@ -799,11 +799,12 @@
   padding: 1rem 0;
   background: linear-gradient(90deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 1rem;
   border-radius: 16px 16px 0 0;
   position: relative;
-  z-index: 1000; /* Higher z-index to ensure it's always on top */
+  z-index: 10; /* Reduced z-index to help it visually recede */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
 }
 
 .auth-container {
