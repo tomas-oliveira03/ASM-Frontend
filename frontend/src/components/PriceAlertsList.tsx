@@ -130,7 +130,10 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
                     ) : (
                       <div className="alerts-list">
                         {alerts.map(alert => (
-                          <div key={alert.id} className="alert-item">
+                          <div 
+                            key={alert.id} 
+                            className={`alert-item ${!alert.active ? 'inactive' : ''}`}
+                          >
                             <button 
                               className="edit-button"
                               onClick={() => handleEditAlert(alert)}

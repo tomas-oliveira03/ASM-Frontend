@@ -1612,3 +1612,17 @@ input:checked + .slider:before {
   margin-right: 10px;
   font-size: 1.2rem;
 }
+
+.alert-item.inactive {
+  opacity: 0.75;
+  background-color: rgba(40, 40, 50, 0.2);
+  border-color: rgba(79, 172, 254, 0.05);
+}
+
+.alert-item.inactive .alert-condition {
+  color: #a0a0a0;
+}
+
+.alert-item.inactive .alert-type {
+  color: #707070;
+}
