@@ -31,7 +31,16 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
       setLoading(true);
       notificationService.getAlerts(currentCoin)
         .then(fetchedAlerts => {
-          setAlerts(fetchedAlerts);
+          // Sort alerts by threshold value, and when equal put 'below' condition first
+          const sortedAlerts = [...fetchedAlerts].sort((a, b) => {
+            // First compare thresholds
+            if (a.threshold !== b.threshold) {
+              return a.threshold - b.threshold;
+            }
+            // If thresholds are equal, put 'below' before 'above'
+            return a.condition === 'below' ? -1 : 1;
+          });
+          setAlerts(sortedAlerts);
           setLoading(false);
         });
     }
@@ -75,10 +84,11 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
   // Handle close edit popup
   const handleCloseEditPopup = () => {
     setEditingAlert(null);
-    // Re-fetch alerts to get updated data
+    // Re-fetch alerts to get updated data and sort them
     notificationService.getAlerts(currentCoin)
       .then(fetchedAlerts => {
-        setAlerts(fetchedAlerts);
+        const sortedAlerts = [...fetchedAlerts].sort((a, b) => a.threshold - b.threshold);
+        setAlerts(sortedAlerts);
       });
   };
   
