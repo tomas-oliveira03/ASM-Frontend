@@ -121,12 +121,19 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
                       <div className="alerts-list">
                         {alerts.map(alert => (
                           <div key={alert.id} className="alert-item">
+                            <button 
+                              className="edit-button"
+                              onClick={() => handleEditAlert(alert)}
+                              title="Edit alert"
+                            >
+                              ✏️
+                            </button>
                             <div className="alert-info">
                               <div className="alert-type">
                                 {alert.type === 'real-time' ? '⚡ Real-time' : '🔮 Predicted'}
                               </div>
                               <div className="alert-condition">
-                                Price {alert.condition} <strong>${alert.threshold.toLocaleString()}</strong>
+                                {alert.condition === 'above' ? '📈' : '📉'} Price {alert.condition} <strong>${alert.threshold.toLocaleString()}</strong>
                               </div>
                             </div>
                             <div className="alert-actions">
@@ -138,13 +145,6 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
                                 />
                                 <span className="slider"></span>
                               </label>
-                              <button 
-                                className="edit-button"
-                                onClick={() => handleEditAlert(alert)}
-                                title="Edit alert"
-                              >
-                                ✏️
-                              </button>
                               <button 
                                 className="delete-button"
                                 onClick={() => handleDeleteAlert(alert.id)}

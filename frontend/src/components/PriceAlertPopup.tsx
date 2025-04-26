@@ -195,13 +195,13 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
                     className={notificationType === 'real-time' ? 'active' : ''}
                     onClick={() => handleNotificationTypeChange('real-time')}
                   >
-                    Real-time Price
+                    ⚡ Real-time Price
                   </button>
                   <button 
                     className={notificationType === 'predicted' ? 'active' : ''}
                     onClick={() => handleNotificationTypeChange('predicted')}
                   >
-                    Predicted Price
+                    🔮 Predicted Price
                   </button>
                 </div>
               </div>
@@ -213,13 +213,13 @@ const PriceAlertPopup: React.FC<PriceAlertPopupProps> = ({
                     className={condition === 'below' ? 'active' : ''}
                     onClick={() => handleConditionChange('below')}
                   >
-                    Below
+                    📉 Below
                   </button>
                   <button 
                     className={condition === 'above' ? 'active' : ''}
                     onClick={() => handleConditionChange('above')}
                   >
-                    Above
+                    📈 Above
                   </button>
                 </div>
               </div>
