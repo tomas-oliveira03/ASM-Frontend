@@ -147,9 +147,6 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
               </div>
               
               <div className="price-alert-content alerts-list-content">
-                <div className="current-price-info">
-                  Current price: <strong>${currentPrice.toLocaleString()}</strong>
-                </div>
 
                 {/* Filters section */}
                 {!loading && alerts.length > 0 && (
@@ -233,6 +230,10 @@ const PriceAlertsList: React.FC<PriceAlertsListProps> = ({
                     </div>
                   </div>
                 )}
+
+                <div className="current-price-info">
+                  Current price: <strong>${currentPrice.toLocaleString()}</strong>
+                </div>
                 
                 {loading ? (
                   <div className="loading-message">Loading your alerts...</div>
