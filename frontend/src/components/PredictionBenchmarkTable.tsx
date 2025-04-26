@@ -36,10 +36,10 @@ const PredictionBenchmarkTable: React.FC<PredictionBenchmarkTableProps> = ({ ben
           <thead>
             <tr>
               <th>Date</th>
-              <th>Predicted Price</th>
-              <th>Actual Price</th>
-              <th>Difference</th>
-              <th>% Difference</th>
+              <th>Predicted Price ($)</th>
+              <th>Actual Price ($)</th>
+              <th>Difference ($)</th>
+              <th>Difference (%)</th>
             </tr>
           </thead>
           <tbody>
